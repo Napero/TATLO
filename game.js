@@ -37,7 +37,7 @@ function resetMatrix() {
     generateColors(); // Ensure colors are generated based on the current COLORS value
     matrix = generateMatrix();
     scrambleSequence = [];
-    let steps = Math.pow(SIZE_X, SIZE_Y);
+    let steps = SIZE_X * SIZE_Y * Math.pow(COLORS,2);
     
     for (let i = 0; i < steps; i++) {
         const x = Math.floor(Math.random() * SIZE_X);
@@ -166,7 +166,7 @@ document.addEventListener('keydown', event => {
         }
     } else if (event.key === 'c') {
         const newColors = parseInt(prompt('Enter amount of colors: '));
-        if (!isNaN(newColors) && newColors > 1) {
+        if (!isNaN(newColors) && newColors > 1 && newColors < 0xFFFFFF) {
             COLORS = newColors;
             generateColors();
             resetMatrix();
