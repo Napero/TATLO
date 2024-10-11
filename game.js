@@ -4,10 +4,20 @@ let SIZE_Y = 5;
 let CELL_SIZE = 100;
 let SCREEN_WIDTH = SIZE_X * CELL_SIZE;
 let SCREEN_HEIGHT = SIZE_Y * CELL_SIZE;
+let COLORS = 2; // Default is 2 for black and white
+let rainbowColors = [];
 
-// Colors
-const BLACK = 'rgb(0, 0, 0)';
-const WHITE = 'rgb(255, 255, 255)';
+// Generate colors based on the current COLORS value
+function generateColors() {
+    if (COLORS == 2) {
+        rainbowColors = ['#000000', '#FFFFFF'];
+    } else {
+        rainbowColors = Array.from({ length: COLORS }, (_, i) => {
+            const hue = Math.floor((i / COLORS) * 360);
+            return `hsl(${hue}, 100%, 50%)`;
+        });
+    }
+}
 
 // Initialize the canvas
 const canvas = document.getElementById('gameCanvas');
@@ -21,39 +31,64 @@ function generateMatrix() {
     return Array.from({ length: SIZE_X }, () => Array(SIZE_Y).fill(0));
 }
 
+let scrambleSequence = [];
+
 function resetMatrix() {
+    generateColors(); // Ensure colors are generated based on the current COLORS value
     matrix = generateMatrix();
-    // Generate a valid solution by applying random actions
-    for (let i = 0; i < SIZE_X * SIZE_Y; i++) {
+    scrambleSequence = [];
+    let steps = Math.pow(SIZE_X, SIZE_Y);
+    
+    for (let i = 0; i < steps; i++) {
         const x = Math.floor(Math.random() * SIZE_X);
         const y = Math.floor(Math.random() * SIZE_Y);
         action(x, y);
+        scrambleSequence.push({ x, y });
+    }
+
+    drawMatrix();
+}
+
+function flip(num, reverse = false) {
+    if (reverse) {
+        return (num - 1 + COLORS) % COLORS; // Cycle backwards
+    } else {
+        return (num + 1) % COLORS; // Cycle forwards
     }
 }
 
-function action(x, y) {  // select coordinates, flip the value of the cell and its neighbors
+// Detect shift-click for backward cycling
+canvas.addEventListener('mousedown', event => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.floor((event.clientX - rect.left) * scaleX / CELL_SIZE);
+    const y = Math.floor((event.clientY - rect.top) * scaleY / CELL_SIZE);
+
+    if (0 <= x && x < SIZE_X && 0 <= y && y < SIZE_Y) {
+        const reverse = event.shiftKey;
+        action(x, y, reverse);
+    }
+});
+
+function action(x, y, reverse = false) {
     if (x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y) {
         return -1;
     } else {
-        matrix[x][y] = flip(matrix[x][y]);
+        matrix[x][y] = flip(matrix[x][y], reverse);
         if (x > 0) {
-            matrix[x - 1][y] = flip(matrix[x - 1][y]);
+            matrix[x - 1][y] = flip(matrix[x - 1][y], reverse);
         }
         if (x < SIZE_X - 1) {
-            matrix[x + 1][y] = flip(matrix[x + 1][y]);
+            matrix[x + 1][y] = flip(matrix[x + 1][y], reverse);
         }
         if (y > 0) {
-            matrix[x][y - 1] = flip(matrix[x][y - 1]);
+            matrix[x][y - 1] = flip(matrix[x][y - 1], reverse);
         }
         if (y < SIZE_Y - 1) {
-            matrix[x][y + 1] = flip(matrix[x][y + 1]);
+            matrix[x][y + 1] = flip(matrix[x][y + 1], reverse);
         }
-        return 0;
     }
-}
-
-function flip(num) {  // flip the value of a cell
-    return 1 - num;
 }
 
 function drawMatrix() {
@@ -61,7 +96,7 @@ function drawMatrix() {
         for (let j = 0; j < SIZE_Y; j++) {
             const rectX = i * CELL_SIZE;
             const rectY = j * CELL_SIZE;
-            const color = matrix[i][j] === 1 ? WHITE : BLACK;
+            const color = rainbowColors[matrix[i][j]];
             context.fillStyle = color;
             context.fillRect(rectX, rectY, CELL_SIZE, CELL_SIZE);
         }
@@ -69,7 +104,8 @@ function drawMatrix() {
 }
 
 function checkWin() {
-    return matrix.every(col => col.every(row => row === 0));
+    const targetColor = matrix[0][0];
+    return matrix.every(col => col.every(row => row === targetColor));
 }
 
 function resizeCanvas() {
@@ -83,22 +119,17 @@ function resizeCanvas() {
     canvas.width = SCREEN_WIDTH;
     canvas.height = SCREEN_HEIGHT;
     context.font = `${CELL_SIZE / 2}px Monospace`;
-    context.textAlign = 'center';
 }
 
-// Generate initial scramble
+// Generate initial colors and matrix
 resetMatrix();
-
-// Call resizeCanvas once to initialize the canvas size
 resizeCanvas();
 
-// Add event listener to resize the canvas when the window size changes
 window.addEventListener('resize', resizeCanvas);
 
-// Main game loop
 function gameLoop() {
     // Clear the screen
-    context.fillStyle = BLACK;
+    context.fillStyle = 'rgb(0, 0, 0)';
     context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Draw the matrix
@@ -106,8 +137,10 @@ function gameLoop() {
 
     // Check if all lights are off
     if (checkWin()) {
-        // Display "You won!" message
-        context.fillStyle = WHITE;
+        // Center the "You won!" text
+        context.fillStyle = 'rgb(255, 255, 255)';
+        context.textAlign = 'center'; // Center text horizontally
+        context.textBaseline = 'middle'; // Center text vertically
         context.fillText('You won!', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     }
 
@@ -115,38 +148,28 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Start the game loop
 gameLoop();
 
-// Handle mouse clicks
-canvas.addEventListener('mousedown', event => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = Math.floor((event.clientX - rect.left) * scaleX / CELL_SIZE);
-    const y = Math.floor((event.clientY - rect.top) * scaleY / CELL_SIZE);
-
-    if (0 <= x && x < SIZE_X && 0 <= y && y < SIZE_Y) {
-        // Flip the cell and its neighbors
-        action(x, y);
-    }
-});
-
-// Handle key presses
 document.addEventListener('keydown', event => {
     if (event.key === 'r') {
-        // Generate new scramble on "R" key press
         resetMatrix();
     } else if (event.key === 'i') {
-        // Reset canvas and matrix on "I" key press
         const newX = parseInt(prompt('Enter new width:'));
         const newY = parseInt(prompt('Enter new height:'));
         if (!isNaN(newX) && !isNaN(newY) && newX > 0 && newY > 0) {
             SIZE_X = newX;
             SIZE_Y = newY;
-            CELL_SIZE = Math.min(SCREEN_WIDTH / SIZE_X, SCREEN_HEIGHT / SIZE_Y);
             resetMatrix();
             resizeCanvas();
+        } else {
+            alert('Invalid input. Please enter valid numbers.');
+        }
+    } else if (event.key === 'c') {
+        const newColors = parseInt(prompt('Enter amount of colors: '));
+        if (!isNaN(newColors) && newColors > 0) {
+            COLORS = newColors;
+            generateColors();
+            resetMatrix();
         } else {
             alert('Invalid input. Please enter valid numbers.');
         }
