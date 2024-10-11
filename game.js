@@ -166,7 +166,7 @@ document.addEventListener('keydown', event => {
         }
     } else if (event.key === 'c') {
         const newColors = parseInt(prompt('Enter amount of colors: '));
-        if (!isNaN(newColors) && newColors > 0) {
+        if (!isNaN(newColors) && newColors > 1) {
             COLORS = newColors;
             generateColors();
             resetMatrix();
