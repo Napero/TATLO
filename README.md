@@ -1,7 +1,7 @@
 # TATLO
 Turn All The Lights Off! Very simple JavaScript game.
 The objective is to turn all the white cells black.
-You can play it on [the itch.io page!](https://napero.itch.io/tatlo-turn-all-the-lights-off)
+You can play it [here!](https://napero.github.io/TATLO) or on [the itch.io page!](https://napero.itch.io/tatlo-turn-all-the-lights-off)
 
 Click to flip a cell and its neighbours.
 Press R to generate a new scramble.
