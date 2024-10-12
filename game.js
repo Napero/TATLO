@@ -37,7 +37,7 @@ function resetMatrix() {
     generateColors(); // Ensure colors are generated based on the current COLORS value
     matrix = generateMatrix();
     scrambleSequence = [];
-    let steps = SIZE_X * SIZE_Y * Math.pow(COLORS,2);
+    let steps = SIZE_X * SIZE_Y * Math.pow(COLORS, 2);
     
     for (let i = 0; i < steps; i++) {
         const x = Math.floor(Math.random() * SIZE_X);
@@ -131,17 +131,28 @@ function gameLoop() {
     // Clear the screen
     context.fillStyle = 'rgb(0, 0, 0)';
     context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    context.message = 'You won!'
 
     // Draw the matrix
     drawMatrix();
 
-    // Check if all lights are off
+    // Check if all tiles are the same color
     if (checkWin()) {
+        // Determine the final color
+        const winningColor = rainbowColors[matrix[0][0]];
+
+        // Set text color and message based on the winning color
+        if (winningColor === '#FFFFFF') {
+            context.message = 'You won?'
+            context.fillStyle = 'rgb(0, 0, 0)'
+        } else {
+            context.fillStyle = 'rgb(255, 255, 255)'
+        }
+
         // Center the "You won!" text
-        context.fillStyle = 'rgb(255, 255, 255)';
         context.textAlign = 'center'; // Center text horizontally
         context.textBaseline = 'middle'; // Center text vertically
-        context.fillText('You won!', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        context.fillText(context.message, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     }
 
     // Request next frame
@@ -166,7 +177,7 @@ document.addEventListener('keydown', event => {
         }
     } else if (event.key === 'c') {
         const newColors = parseInt(prompt('Enter amount of colors: '));
-        if (!isNaN(newColors) && newColors > 1 && newColors < 0xFFFFFF) {
+        if (!isNaN(newColors) && newColors > 1 && newColors <= 256) { // Limit colors for practical use
             COLORS = newColors;
             generateColors();
             resetMatrix();

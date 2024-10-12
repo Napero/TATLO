@@ -1,0 +1,25 @@
+# Text
+*.html    text eol=lf
+*.css     text eol=lf
+*.js      text eol=lf
+*.json    text eol=lf
+*.md      text eol=lf
+*.xml     text eol=lf
+*.svg     text eol=lf
+
+# Images
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+
+# Other
+*.pdf     binary
+*.zip     binary
+*.ttf     binary
+*.woff    binary
+*.woff2   binary
+
+# GitHub Pages
+.gitattributes text eol=lf
