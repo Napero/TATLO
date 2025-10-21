@@ -7,6 +7,14 @@ let SCREEN_HEIGHT = SIZE_Y * CELL_SIZE;
 let COLORS = 2; // Default is 2 for black and white
 let rainbowColors = [];
 
+// Game modes
+const GAME_MODES = {
+    CROSS: 'Cross',    // Flip cell + orthogonal neighbors (original mode)
+    X: 'X',            // Flip cell + diagonal neighbors
+    PLUS: 'Plus'       // Flip cell + all 8 neighbors
+};
+let currentMode = GAME_MODES.CROSS;
+
 // Generate colors based on the current COLORS value
 function generateColors() {
     if (COLORS == 2) {
@@ -75,18 +83,40 @@ function action(x, y, reverse = false) {
     if (x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y) {
         return -1;
     } else {
+        // Always flip the clicked cell
         matrix[x][y] = flip(matrix[x][y], reverse);
-        if (x > 0) {
-            matrix[x - 1][y] = flip(matrix[x - 1][y], reverse);
+        
+        // Apply mode-specific neighbor flips
+        if (currentMode === GAME_MODES.CROSS || currentMode === GAME_MODES.PLUS) {
+            // Flip orthogonal neighbors (up, down, left, right)
+            if (x > 0) {
+                matrix[x - 1][y] = flip(matrix[x - 1][y], reverse);
+            }
+            if (x < SIZE_X - 1) {
+                matrix[x + 1][y] = flip(matrix[x + 1][y], reverse);
+            }
+            if (y > 0) {
+                matrix[x][y - 1] = flip(matrix[x][y - 1], reverse);
+            }
+            if (y < SIZE_Y - 1) {
+                matrix[x][y + 1] = flip(matrix[x][y + 1], reverse);
+            }
         }
-        if (x < SIZE_X - 1) {
-            matrix[x + 1][y] = flip(matrix[x + 1][y], reverse);
-        }
-        if (y > 0) {
-            matrix[x][y - 1] = flip(matrix[x][y - 1], reverse);
-        }
-        if (y < SIZE_Y - 1) {
-            matrix[x][y + 1] = flip(matrix[x][y + 1], reverse);
+        
+        if (currentMode === GAME_MODES.X || currentMode === GAME_MODES.PLUS) {
+            // Flip diagonal neighbors
+            if (x > 0 && y > 0) {
+                matrix[x - 1][y - 1] = flip(matrix[x - 1][y - 1], reverse);
+            }
+            if (x > 0 && y < SIZE_Y - 1) {
+                matrix[x - 1][y + 1] = flip(matrix[x - 1][y + 1], reverse);
+            }
+            if (x < SIZE_X - 1 && y > 0) {
+                matrix[x + 1][y - 1] = flip(matrix[x + 1][y - 1], reverse);
+            }
+            if (x < SIZE_X - 1 && y < SIZE_Y - 1) {
+                matrix[x + 1][y + 1] = flip(matrix[x + 1][y + 1], reverse);
+            }
         }
     }
 }
@@ -106,6 +136,13 @@ function drawMatrix() {
 function checkWin() {
     const targetColor = matrix[0][0];
     return matrix.every(col => col.every(row => row === targetColor));
+}
+
+function cycleGameMode() {
+    const modes = Object.values(GAME_MODES);
+    const currentIndex = modes.indexOf(currentMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    currentMode = modes[nextIndex];
 }
 
 function resizeCanvas() {
@@ -135,6 +172,15 @@ function gameLoop() {
 
     // Draw the matrix
     drawMatrix();
+
+    // Display current game mode in top-left corner
+    context.save();
+    context.font = `${CELL_SIZE / 4}px Monospace`;
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = 'rgba(128, 128, 128, 0.7)';
+    context.fillText(`Mode: ${currentMode}`, 10, 10);
+    context.restore();
 
     // Check if all tiles are the same color
     if (checkWin()) {
@@ -184,5 +230,8 @@ document.addEventListener('keydown', event => {
         } else {
             alert('Invalid input. Please enter valid numbers.');
         }
+    } else if (event.key === 'm') {
+        cycleGameMode();
+        resetMatrix(); // Reset the board when changing modes
     }
 });
