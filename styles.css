@@ -267,7 +267,21 @@ canvas.game-won {
     display: flex;
     align-items: center;
     gap: 10px;
-    justify-content: space-between;
+}
+
+.customize-menu-button > span:first-child {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.customize-menu-button .keybind {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.6;
+    background: #2a2a2a;
+    padding: 2px 6px;
+    border-radius: 3px;
 }
 
 .customize-menu-button:hover {
@@ -502,6 +516,17 @@ canvas.game-won {
     align-items: center;
     gap: 8px;
     justify-content: center;
+}
+
+.victory-share-button {
+    background-color: #4a7c59;
+    border-color: #3a6c49;
+    margin-bottom: 10px;
+}
+
+.victory-share-button:hover {
+    background-color: #5a8c69;
+    border-color: #4a7c59;
 }
 
 .victory-button span {

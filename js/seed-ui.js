@@ -3,9 +3,9 @@
 // Track consecutive invalid seed attempts
 let invalidSeedAttempts = 0;
 
-// Show seed management modal
+// Show combined seed and share modal
 function showSeedModal() {
-    modalTitle.textContent = 'Seed Management';
+    modalTitle.textContent = 'Seed & Share';
     modalError.classList.remove('active');
     modalReset.classList.remove('visible');
     
@@ -14,31 +14,56 @@ function showSeedModal() {
         ? '<div style="background: #7c4a4a; padding: 8px; border-radius: 4px; text-align: center; margin-bottom: 15px; color: #ffcccc;"><strong>⚠️ SET SEED MODE ACTIVE</strong></div>' 
         : '';
     
+    // Generate share URL
+    const shareURL = generateShareableURL();
+    
+    // Get puzzle info for display
+    const scoreData = calculateScore();
+    const difficultyInfo = scoreData.difficulty;
+    const patternCells = flipPattern.length;
+    
     modalContent.innerHTML = `
         <div style="color: #d0d0d0; line-height: 1.8;">
             ${modeIndicator}
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 10px 0;">Current Seed:</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="currentSeedDisplay" readonly value="${seedDisplay}" 
-                           style="flex: 1; padding: 8px; background: #2a2a2a; border: 1px solid #4a4a4a; 
+            
+            <!-- Share Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #2a2a2a; border-radius: 8px; border: 1px solid #4a4a4a;">
+                <h3 style="color: #ffffff; margin: 0 0 12px 0; font-size: 16px;">🔗 Share This Puzzle</h3>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 13px; color: #999; margin-bottom: 8px;">
+                        ${difficultyInfo.emoji} ${difficultyInfo.name} • ${SIZE_X}×${SIZE_Y} • ${COLORS} colors • ${patternCells} cells
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <input type="text" id="shareURLDisplay" readonly value="${shareURL}" 
+                           style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #4a4a4a; 
                                   color: #f0f0f0; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 11px;">
-                    <button id="copySeedBtn" style="padding: 8px 16px; background: #4a7c59; border: none; 
-                                                     color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
-                        📋 Copy
+                    <button id="copyURLBtn" style="padding: 10px 16px; background: #4a7c59; border: none; 
+                                                     color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                        🔗 Copy Link
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="shareSeedDisplay" readonly value="${seedDisplay}" 
+                           style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #4a4a4a; 
+                                  color: #f0f0f0; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 11px;">
+                    <button id="copySeedBtn" style="padding: 10px 16px; background: #4a7c59; border: none; 
+                                                     color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                        📋 Copy Seed
                     </button>
                 </div>
             </div>
             
+            <!-- Load Seed Section -->
             <div style="margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 10px 0;">Load Custom Seed:</h3>
+                <h3 style="color: #ffffff; margin: 0 0 12px 0; font-size: 16px;">📥 Load Custom Seed</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="customSeedInput" placeholder="Paste seed here..." 
-                           style="flex: 1; padding: 8px; background: #2a2a2a; border: 1px solid #4a4a4a; 
+                           style="flex: 1; padding: 10px; background: #2a2a2a; border: 1px solid #4a4a4a; 
                                   color: #f0f0f0; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 11px;">
                     <button id="loadCustomSeedBtn" 
-                            style="padding: 8px 16px; background: #4a7c59; border: none; 
-                                   color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
+                            style="padding: 10px 16px; background: #4a7c59; border: none; 
+                                   color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-weight: bold;">
                         ✅ Load
                     </button>
                 </div>
@@ -50,8 +75,8 @@ function showSeedModal() {
             ${isSetSeedMode ? `
             <div>
                 <button id="randomSeedBtn" 
-                        style="width: 100%; padding: 12px; background: #4a7c59; border: none; 
-                               color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 14px;">
+                        style="width: 100%; padding: 12px; background: #7c4a4a; border: none; 
+                               color: white; border-radius: 4px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 14px; font-weight: bold;">
                     🎲 Return to Random Seed Mode
                 </button>
             </div>
@@ -67,17 +92,27 @@ function showSeedModal() {
     
     // Button handlers
     setTimeout(() => {
+        const copyURLBtn = document.getElementById('copyURLBtn');
         const copySeedBtn = document.getElementById('copySeedBtn');
         const loadCustomSeedBtn = document.getElementById('loadCustomSeedBtn');
         const customSeedInput = document.getElementById('customSeedInput');
         const seedError = document.getElementById('seedError');
         const randomSeedBtn = document.getElementById('randomSeedBtn');
         
+        copyURLBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shareURL).then(() => {
+                copyURLBtn.innerHTML = '✓ Copied!';
+                setTimeout(() => {
+                    copyURLBtn.innerHTML = '🔗 Copy Link';
+                }, 2000);
+            });
+        });
+        
         copySeedBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(currentSeed).then(() => {
-                copySeedBtn.textContent = '✓ Copied!';
+                copySeedBtn.innerHTML = '✓ Copied!';
                 setTimeout(() => {
-                    copySeedBtn.textContent = '📋 Copy';
+                    copySeedBtn.innerHTML = '📋 Copy Seed';
                 }, 2000);
             });
         });

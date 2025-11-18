@@ -96,13 +96,36 @@ function showVictoryModal() {
     if (autoSolveCompleted) {
         victoryMessage.textContent = 'Solution completed. Stats not saved.';
     } else {
-        const scores = loadBestScores();
-        if (scores.bestTime === null || elapsedTime < scores.bestTime) {
-            victoryMessage.textContent = '🎉 New best time! 🎉';
-        } else if (scores.bestMoves === null || moveCount < scores.bestMoves) {
-            victoryMessage.textContent = '🎉 New best moves! 🎉';
+        // Always show/hide share button based on daily puzzle mode
+        const victoryShare = document.getElementById('victoryShare');
+        if (isDailyPuzzleMode) {
+            // Show share button for any daily puzzle
+            if (victoryShare) {
+                victoryShare.style.display = 'block';
+            }
+            
+            // Check if this is a NEW completion
+            if (!isDailyPuzzleCompleted(currentDailyDate)) {
+                markDailyPuzzleCompleted(elapsedTime, moveCount, currentDailyDate);
+                victoryMessage.textContent = '🎉 Daily puzzle completed! 🎉';
+                updateDailyPuzzleButton();
+            } else {
+                victoryMessage.textContent = '🎉 Daily puzzle! 🎉';
+            }
         } else {
-            victoryMessage.textContent = 'Great job! Press R or click below to play again';
+            // Hide share button for non-daily puzzles
+            if (victoryShare) {
+                victoryShare.style.display = 'none';
+            }
+            
+            const scores = loadBestScores();
+            if (scores.bestTime === null || elapsedTime < scores.bestTime) {
+                victoryMessage.textContent = '🎉 New best time! 🎉';
+            } else if (scores.bestMoves === null || moveCount < scores.bestMoves) {
+                victoryMessage.textContent = '🎉 New best moves! 🎉';
+            } else {
+                victoryMessage.textContent = 'Great job! Press R or click below to play again';
+            }
         }
     }
     
@@ -187,8 +210,13 @@ function initGame() {
     bestMoves = scores.bestMoves;
     bestScore = scores.bestScore;
     
-    // Generate initial colors and matrix
-    resetMatrix();
+    // Check URL parameters for seed sharing
+    checkURLParameters();
+    
+    // Generate initial colors and matrix (unless loaded from URL)
+    if (!isSetSeedMode) {
+        resetMatrix();
+    }
     resizeCanvas();
     updateDisplay();
     updateLogo();
@@ -214,6 +242,43 @@ function initGame() {
         hideGiveUpButton();
         resetMatrix();
     });
+    
+    // Share Results button for daily puzzle
+    const victoryShare = document.getElementById('victoryShare');
+    if (victoryShare) {
+        victoryShare.addEventListener('click', () => {
+            console.log('Share button clicked');
+            console.log('isDailyPuzzleMode:', isDailyPuzzleMode);
+            console.log('currentDailyDate:', currentDailyDate);
+            
+            if (isDailyPuzzleMode && currentDailyDate) {
+                const shareText = generateDailyPuzzleShare(currentDailyDate);
+                console.log('Share text generated:', shareText);
+                
+                if (shareText) {
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        console.log('Copied to clipboard successfully');
+                        victoryShare.innerHTML = '<span>✓</span> Copied!';
+                        setTimeout(() => {
+                            victoryShare.innerHTML = '<span>📊</span> Share Results';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        victoryShare.innerHTML = '<span>❌</span> Failed';
+                        setTimeout(() => {
+                            victoryShare.innerHTML = '<span>📊</span> Share Results';
+                        }, 2000);
+                    });
+                } else {
+                    console.error('No share text generated');
+                }
+            } else {
+                console.error('Not in daily puzzle mode or no date');
+            }
+        });
+    } else {
+        console.error('Victory share button not found');
+    }
     
     // Click to copy seed
     victorySeed.addEventListener('click', () => {
@@ -375,12 +440,16 @@ document.addEventListener('keydown', event => {
 
 // UI Button Handlers
 const btnNewScramble = document.getElementById('btnNewScramble');
-const btnSeed = document.getElementById('btnSeed');
 const btnLeaderboard = document.getElementById('btnLeaderboard');
 const btnCustomize = document.getElementById('btnCustomize');
 const btnInfo = document.getElementById('btnInfo');
 const btnGiveUp = document.getElementById('btnGiveUp');
+const btnPuzzle = document.getElementById('btnPuzzle');
+const btnStats = document.getElementById('btnStats');
+const btnSeedAndShare = document.getElementById('btnSeedAndShare');
 const customizeMenu = document.getElementById('customizeMenu');
+const puzzleMenu = document.getElementById('puzzleMenu');
+const statsMenu = document.getElementById('statsMenu');
 const btnGridSize = document.getElementById('btnGridSize');
 const btnColors = document.getElementById('btnColors');
 const btnPattern = document.getElementById('btnPattern');
@@ -388,6 +457,7 @@ const btnResetAll = document.getElementById('btnResetAll');
 
 // New Scramble button
 btnNewScramble.addEventListener('click', () => {
+    puzzleMenu.classList.remove('active');
     stopSolver();
     hideGiveUpButton();
     hideAutoClickButton();
@@ -410,19 +480,25 @@ btnAutoClick.addEventListener('click', () => {
     btnAutoClick.classList.toggle('active');
 });
 
-// Seed button - show seed management modal
-btnSeed.addEventListener('click', () => {
+// Seed & Share button - show combined seed and share modal
+btnSeedAndShare.addEventListener('click', () => {
+    puzzleMenu.classList.remove('active');
     showSeedModal();
 });
 
 // Leaderboard button - show best scores
 btnLeaderboard.addEventListener('click', () => {
+    statsMenu.classList.remove('active');
     showLeaderboard();
 });
 
 // Customize menu toggle
 btnCustomize.addEventListener('click', (e) => {
     e.stopPropagation();
+    // Close other menus
+    puzzleMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
+    
     const isActive = customizeMenu.classList.toggle('active');
     
     if (isActive) {
@@ -434,16 +510,60 @@ btnCustomize.addEventListener('click', (e) => {
     }
 });
 
-// Close customize menu when clicking outside
+// Puzzle menu toggle
+btnPuzzle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // Close other menus
+    customizeMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
+    
+    const isActive = puzzleMenu.classList.toggle('active');
+    
+    if (isActive) {
+        // Position menu below the button, aligned to the right
+        const rect = btnPuzzle.getBoundingClientRect();
+        puzzleMenu.style.top = `${rect.bottom + 5}px`;
+        puzzleMenu.style.left = 'auto';
+        puzzleMenu.style.right = `${window.innerWidth - rect.right}px`;
+    }
+});
+
+// Stats menu toggle
+btnStats.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // Close other menus
+    customizeMenu.classList.remove('active');
+    puzzleMenu.classList.remove('active');
+    
+    const isActive = statsMenu.classList.toggle('active');
+    
+    if (isActive) {
+        // Position menu below the button, aligned to the right
+        const rect = btnStats.getBoundingClientRect();
+        statsMenu.style.top = `${rect.bottom + 5}px`;
+        statsMenu.style.left = 'auto';
+        statsMenu.style.right = `${window.innerWidth - rect.right}px`;
+    }
+});
+
+// Close menus when clicking outside
 document.addEventListener('click', (e) => {
     if (!customizeMenu.contains(e.target) && e.target !== btnCustomize) {
         customizeMenu.classList.remove('active');
+    }
+    if (!puzzleMenu.contains(e.target) && e.target !== btnPuzzle) {
+        puzzleMenu.classList.remove('active');
+    }
+    if (!statsMenu.contains(e.target) && e.target !== btnStats) {
+        statsMenu.classList.remove('active');
     }
 });
 
 // Grid Size button
 btnGridSize.addEventListener('click', () => {
     customizeMenu.classList.remove('active');
+    puzzleMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
     showModal('Set Grid Size', [
         { label: 'Width (1-50):', type: 'number', defaultValue: SIZE_X, placeholder: 'Enter width' },
         { label: 'Height (1-50):', type: 'number', defaultValue: SIZE_Y, placeholder: 'Enter height' }
@@ -497,6 +617,8 @@ btnGridSize.addEventListener('click', () => {
 // Colors button
 btnColors.addEventListener('click', () => {
     customizeMenu.classList.remove('active');
+    puzzleMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
     showModal('Set Number of Colors', [
         { label: 'Number of colors (2-256):', type: 'number', defaultValue: COLORS, placeholder: 'Enter number of colors' }
     ], (values) => {
@@ -548,6 +670,8 @@ btnColors.addEventListener('click', () => {
 // Click Pattern button
 btnPattern.addEventListener('click', () => {
     customizeMenu.classList.remove('active');
+    puzzleMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
     showGridSelector(() => {
         exitSetSeedMode(); // Exit set seed mode when changing pattern
         resetMatrix();
@@ -558,6 +682,8 @@ btnPattern.addEventListener('click', () => {
 // Reset All to Defaults button
 btnResetAll.addEventListener('click', () => {
     customizeMenu.classList.remove('active');
+    puzzleMenu.classList.remove('active');
+    statsMenu.classList.remove('active');
     
     // Reset all settings to defaults
     SIZE_X = DEFAULT_SIZE_X;
@@ -574,6 +700,13 @@ btnResetAll.addEventListener('click', () => {
     resizeCanvas();
     updateLogo();
     updateDifficultyDisplay();
+});
+
+// Daily button - show daily puzzle modal
+const btnDaily = document.getElementById('btnDaily');
+btnDaily.addEventListener('click', () => {
+    puzzleMenu.classList.remove('active');
+    showDailyPuzzleModal();
 });
 
 // Info button - shows game information from README
@@ -879,6 +1012,12 @@ mobileInfo.addEventListener('click', () => {
     btnInfo.click();
 });
 
+const mobileDaily = document.getElementById('mobileDaily');
+mobileDaily.addEventListener('click', () => {
+    closeMobileMenu();
+    btnDaily.click();
+});
+
 mobileNewScramble.addEventListener('click', () => {
     closeMobileMenu();
     btnNewScramble.click();
@@ -887,6 +1026,12 @@ mobileNewScramble.addEventListener('click', () => {
 mobileSeed.addEventListener('click', () => {
     closeMobileMenu();
     btnSeed.click();
+});
+
+const mobileShare = document.getElementById('mobileShare');
+mobileShare.addEventListener('click', () => {
+    closeMobileMenu();
+    btnShare.click();
 });
 
 mobileLeaderboard.addEventListener('click', () => {

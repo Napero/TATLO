@@ -28,6 +28,10 @@ let currentSeed = null;
 let isSetSeedMode = false;
 let setSeedValue = null;
 
+// Daily puzzle system
+let isDailyPuzzleMode = false;
+let currentDailyDate = null;
+
 // Simple seeded random number generator (mulberry32)
 function seededRandom(seed) {
     return function() {

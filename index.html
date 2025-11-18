@@ -64,15 +64,15 @@
                 <button class="game-button" id="btnInfo" title="Show game information">
                     <span>ℹ️</span> Info
                 </button>
-                <button class="game-button" id="btnNewScramble" title="Generate new scramble (R)">
-                    <span>🎲</span> New Scramble <span class="keybind">R</span>
+                
+                <button class="game-button" id="btnPuzzle" title="Puzzle options">
+                    <span>🧩</span> Puzzle
                 </button>
-                <button class="game-button" id="btnSeed" title="View and manage seeds">
-                    <span>🔢</span> Seed
+                
+                <button class="game-button" id="btnStats" title="Stats and achievements">
+                    <span>📊</span> Stats
                 </button>
-                <button class="game-button" id="btnLeaderboard" title="View best scores">
-                    <span>🏆</span> Leaderboard
-                </button>
+                
                 <button class="game-button" id="btnCustomize" title="Customize game settings">
                     <span>⚙️</span> Customize
                 </button>
@@ -89,11 +89,17 @@
             <button class="mobile-nav-button" id="mobileInfo">
                 <span>ℹ️</span> Info
             </button>
+            <button class="mobile-nav-button" id="mobileDaily">
+                <span>📅</span> Daily
+            </button>
             <button class="mobile-nav-button" id="mobileNewScramble">
                 <span>🎲</span> New Scramble
             </button>
             <button class="mobile-nav-button" id="mobileSeed">
                 <span>🔢</span> Seed
+            </button>
+            <button class="mobile-nav-button" id="mobileShare">
+                <span>🔗</span> Share
             </button>
             <button class="mobile-nav-button" id="mobileLeaderboard">
                 <span>🏆</span> Leaderboard
@@ -125,6 +131,31 @@
             <button class="customize-menu-button" id="btnResetAll">
                 <span>🔄</span> Reset All to Defaults
             </button>
+        </div>
+    </div>
+    
+    <!-- Puzzle Submenu Modal -->
+    <div id="puzzleMenu" class="customize-menu">
+        <div class="customize-menu-content">
+            <button class="customize-menu-button" id="btnDaily">
+                <span>📅</span> Daily Puzzle
+            </button>
+            <button class="customize-menu-button" id="btnNewScramble">
+                <span>🎲</span> New Scramble <span class="keybind">R</span>
+            </button>
+            <button class="customize-menu-button" id="btnSeedAndShare">
+                <span>🔢</span> Seed & Share
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Submenu Modal -->
+    <div id="statsMenu" class="customize-menu">
+        <div class="customize-menu-content">
+            <button class="customize-menu-button" id="btnLeaderboard">
+                <span>🏆</span> Leaderboard
+            </button>
+            <!-- Future: Stats Dashboard, Achievements -->
         </div>
     </div>
     
@@ -172,6 +203,9 @@
                         </span>
                     </div>
                 </div>
+                <button class="victory-button victory-share-button" id="victoryShare" style="display: none;">
+                    <span>📊</span> Share Results
+                </button>
                 <button class="victory-button" id="victoryNewGame">New Scramble</button>
             </div>
         </div>
@@ -202,7 +236,10 @@
     <script src="js/storage.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/emoji-art.js"></script>
     <script src="js/seed-ui.js"></script>
+    <script src="js/share.js"></script>
+    <script src="js/daily.js"></script>
     <script src="js/leaderboard-ui.js"></script>
     <script src="js/scoring.js"></script>
     <script src="js/solver.js"></script>
