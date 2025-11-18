@@ -272,8 +272,18 @@ function generateDailyPuzzleShare(dateOverride = null) {
     }
     
     const dailyData = getDailySeed(targetDate);
-    const scoreData = calculateScore();
-    const difficultyEmoji = scoreData.difficulty.emoji;
+    
+    // Calculate difficulty based on the daily puzzle's configuration, not current game state
+    const dailyConfig = dailyData.config;
+    const gridSize = dailyConfig.sizeX * dailyConfig.sizeY;
+    const patternSize = dailyConfig.pattern.length;
+    const baseScore = gridSize * dailyConfig.colors * Math.log(dailyConfig.colors);
+    const patternMultiplier = Math.pow(5 / patternSize, 0.5);
+    const totalScore = Math.round(baseScore * patternMultiplier);
+    
+    // Use the existing difficulty rating function from scoring.js
+    const difficulty = getDifficultyRating(totalScore);
+    const difficultyEmoji = difficulty.emoji;
     
     // Format date nicely
     const [year, month, day] = targetDate.split('-');
@@ -284,7 +294,7 @@ function generateDailyPuzzleShare(dateOverride = null) {
     const completed = isDailyPuzzleCompleted(targetDate);
     
     let shareText = `TATLO! Daily ${targetDate} (${dayOfWeek})\n`;
-    shareText += `${difficultyEmoji} ${scoreData.difficulty.name}\n\n`;
+    shareText += `${difficultyEmoji} ${difficulty.name}\n\n`;
     
     if (completed) {
         const time = localStorage.getItem(`tatlo_daily_time_${targetDate}`);
