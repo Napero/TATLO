@@ -27,7 +27,13 @@ The timer starts on your first click and tracks every move. Try to beat your per
 
 ### UI Buttons
 - **Info** - See this help, plus feature explanations and credits
-- **New Scramble** - Generate a new random puzzle
+- **Puzzle Menu** - Quick access to:
+  - Daily Puzzle (with completion tracking)
+  - New Scramble / Reset Set Seed
+  - Random Puzzle Generator (target specific difficulties)
+  - Seed & Share (enter/view seeds, copy shareable links)
+  - Leave Set Seed Mode (when active)
+- **Stats** - View leaderboard with your best scores
 - **Customize** - Opens the full settings menu:
   - Set Grid Size (2×1 up to 50×50)
   - Set Colors (2 to 256)
@@ -42,11 +48,15 @@ The timer starts on your first click and tracks every move. Try to beat your per
 - 🏆 **Personal Records** - Your best time, move count, and score saved for each unique setup
 - 🎲 **Random Seeds** - Every scramble uses a shareable seed so you can replay or challenge friends
 - 🔢 **Seed System** - Enter a seed to play the exact same puzzle, share with others, or retry to improve your score
+- 📅 **Daily Puzzles** - New puzzle every day with difficulty scaling through the week (Monday=easiest, Sunday=hardest)
+- 🔗 **Shareable Links** - Copy game URLs with embedded seeds, emoji art, and stats to share on social media
+- 🔁 **Replay Mode** - Replay button enters set seed mode to keep practicing the same puzzle
 
 ### Customization
 - 🎨 **Grid Sizes** - Anywhere from 2×1 up to 50×50 (good luck with that)
 - 🌈 **Color Options** - 2 colors to 256 colors (warning: your brain might explode)
 - 🎯 **Custom Patterns** - Click-and-drag to design any flip pattern you can imagine
+- ✨ **Random Puzzle Generator** - Generate puzzles targeting specific difficulty tiers
 - 💾 **Auto-Save** - Everything saves automatically to your browser
 - 📱 **Responsive** - Plays nicely on any screen size
 
@@ -60,8 +70,12 @@ The timer starts on your first click and tracks every move. Try to beat your per
 ### Quality of Life
 - 🔄 **Persistent State** - Game saves mid-puzzle if you close the tab
 - 🏆 **Leaderboard** - See all your best scores across different configs
+- 📋 **Victory Actions** - Replay same puzzle, share results, or start new scramble
+- 📢 **Daily Reminder** - Dismissible notification when you haven't completed today's puzzle
+- 🚫 **No Context Menu** - Right-click disabled on game grid for smoother mobile experience
 - 🎉 **Easter Eggs** - Hidden surprises for... creative configurations
 - 🎨 **Pattern Previews** - See what each pattern does before applying it
+- 📱 **Mobile UI** - Hamburger menu with organized sections for Puzzle/Stats/Customize
 
 ## Code Structure
 
@@ -73,9 +87,13 @@ The timer starts on your first click and tracks every move. Try to beat your per
 - **`scoring.js`** - Difficulty calculation with shape analysis, normalization, tier ratings
 
 ### UI & Interface
-- **`main.js`** - Game initialization, event handlers, button/keyboard controls, difficulty display
+- **`main.js`** - Game initialization, event handlers, button/keyboard controls, difficulty display, victory modal
 - **`ui.js`** - Modal system, pattern selector with drag-to-paint, input validation
 - **`seed-ui.js`** - Seed display/input/validation, set seed mode, seed sharing
+- **`share.js`** - URL compression, shareable link generation, emoji art for social sharing
+- **`daily.js`** - Daily puzzle system, date-based seed generation, completion tracking, reminder banner
+- **`emoji-art.js`** - Grid visualization with emoji for share text
+- **`random-puzzle.js`** - Random puzzle generator with difficulty targeting
 - **`leaderboard-ui.js`** - Best scores table, random/set seed tabs, difficulty display per entry
 
 ### Solver

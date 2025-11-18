@@ -123,32 +123,37 @@ function generateRandomPuzzle(targetDifficulty, useRainbow, useRandomPattern) {
         ];
     }
     
-    // Calculate grid size to achieve target difficulty
-    // Use the actual scoring formula to work backwards
-    const basePatternSize = 5;
-    const actualPatternSize = pattern.length;
-    const patternAdjustment = basePatternSize / actualPatternSize;
+    // Calculate grid size using actual scoring formulas
+    // Base: 7×5 = 35 cells, 2 colors, cross pattern = 1000 score
+    const BASE_AREA = 35;
+    const BASE_COLORS = 2;
     
-    // Target grid size from difficulty formula
-    // difficulty = gridSize * colors * ln(colors) * patternAdjustment (approximately)
-    const colorFactor = colors * Math.log(colors);
-    const targetGridSize = Math.round(targetDifficulty / (colorFactor * patternAdjustment));
+    // Color multiplier: (colors / 2)^1.8
+    const colorMultiplier = Math.pow(colors / BASE_COLORS, 1.8);
     
-    console.log('Target grid size:', targetGridSize, 'for difficulty:', targetDifficulty);
+    // Pattern multiplier is complex, but we can estimate
+    // For default cross it's ~1.0, for other patterns it varies
+    const patternMultiplier = 1.0; // We'll adjust grid size to compensate
+    
+    // Grid multiplier: (area / 35)^1.5
+    // Solving for area: area = 35 * (targetDifficulty / (1000 * colorMult * patternMult))^(1/1.5)
+    const targetArea = BASE_AREA * Math.pow(targetDifficulty / (1000 * colorMultiplier * patternMultiplier), 1/1.5);
+    
+    console.log('Target area:', Math.round(targetArea), 'for difficulty:', targetDifficulty);
     
     // Find reasonable grid dimensions (aspect ratio close to 7:5 = 1.4)
     let bestX = 7, bestY = 5;
-    let minDiff = Math.abs(targetGridSize - 35);
+    let minDiff = Infinity;
     
-    // Try different dimensions
-    for (let x = 5; x <= 25; x++) {
-        for (let y = 5; y <= 25; y++) {
+    // Search for best dimensions
+    for (let x = 2; x <= 25; x++) {
+        for (let y = 2; y <= 25; y++) {
             const area = x * y;
-            const diff = Math.abs(area - targetGridSize);
+            const diff = Math.abs(area - targetArea);
             const aspectRatio = x / y;
             
-            // Prefer aspect ratios between 1.0 and 1.8 (wider than tall)
-            if (diff < minDiff && aspectRatio >= 1.0 && aspectRatio <= 1.8) {
+            // Prefer aspect ratios between 0.8 and 2.0
+            if (diff < minDiff && aspectRatio >= 0.8 && aspectRatio <= 2.0) {
                 minDiff = diff;
                 bestX = x;
                 bestY = y;
