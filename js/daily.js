@@ -283,7 +283,7 @@ function generateDailyPuzzleShare(dateOverride = null) {
     // Get completion stats
     const completed = isDailyPuzzleCompleted(targetDate);
     
-    let shareText = `TATLO Daily ${targetDate} (${dayOfWeek})\n`;
+    let shareText = `TATLO! Daily ${targetDate} (${dayOfWeek})\n`;
     shareText += `${difficultyEmoji} ${scoreData.difficulty.name}\n\n`;
     
     if (completed) {
