@@ -1118,4 +1118,5 @@ if (typeof originalHideAutoClickButton === 'function') {
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
     syncMobileButtonVisibility();
+    initDailyReminder(); // Initialize daily puzzle reminder
 });

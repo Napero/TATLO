@@ -79,6 +79,14 @@
             </div>
         </div>
         <div class="game-canvas-wrapper">
+            <!-- Daily Puzzle Reminder -->
+            <div class="daily-reminder" id="dailyReminder" style="display: none;">
+                <div class="daily-reminder-content">
+                    <span class="daily-reminder-icon">📅</span>
+                    <span class="daily-reminder-text">Today's puzzle awaits!</span>
+                </div>
+                <button class="daily-reminder-dismiss" id="dailyReminderDismiss" title="Dismiss until tomorrow">✕</button>
+            </div>
             <canvas id="gameCanvas"></canvas>
         </div>
     </div>

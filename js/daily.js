@@ -1,5 +1,69 @@
 // Daily Puzzle System
 
+// Daily reminder elements
+let dailyReminder = null;
+let dailyReminderDismiss = null;
+
+// Initialize daily reminder
+function initDailyReminder() {
+    dailyReminder = document.getElementById('dailyReminder');
+    dailyReminderDismiss = document.getElementById('dailyReminderDismiss');
+    
+    if (!dailyReminder || !dailyReminderDismiss) return;
+    
+    // Click reminder to open daily puzzle
+    dailyReminder.addEventListener('click', (e) => {
+        if (e.target !== dailyReminderDismiss) {
+            hideDailyReminder();
+            showDailyPuzzleModal();
+        }
+    });
+    
+    // Dismiss button
+    dailyReminderDismiss.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissDailyReminder();
+    });
+    
+    // Check if we should show the reminder
+    checkDailyReminder();
+}
+
+// Check if daily reminder should be shown
+function checkDailyReminder() {
+    const today = getTodayDateString();
+    const completed = isDailyPuzzleCompleted(today);
+    const dismissed = localStorage.getItem(`tatlo_daily_reminder_dismissed`);
+    const dismissedDate = localStorage.getItem(`tatlo_daily_reminder_dismissed_date`);
+    
+    // Show if: not completed today AND (never dismissed OR dismissed on a different day)
+    if (!completed && (!dismissed || dismissedDate !== today)) {
+        showDailyReminder();
+    }
+}
+
+// Show daily reminder
+function showDailyReminder() {
+    if (dailyReminder) {
+        dailyReminder.style.display = 'flex';
+    }
+}
+
+// Hide daily reminder (temporary, for this session)
+function hideDailyReminder() {
+    if (dailyReminder) {
+        dailyReminder.style.display = 'none';
+    }
+}
+
+// Dismiss daily reminder (until tomorrow)
+function dismissDailyReminder() {
+    const today = getTodayDateString();
+    localStorage.setItem(`tatlo_daily_reminder_dismissed`, 'true');
+    localStorage.setItem(`tatlo_daily_reminder_dismissed_date`, today);
+    hideDailyReminder();
+}
+
 // Get today's date as a string (YYYY-MM-DD)
 function getTodayDateString() {
     const today = new Date();
@@ -126,6 +190,9 @@ function markDailyPuzzleCompleted(time, moves, date = null) {
     localStorage.setItem(key, 'true');
     localStorage.setItem(`tatlo_daily_time_${dateString}`, time);
     localStorage.setItem(`tatlo_daily_moves_${dateString}`, moves);
+    
+    // Hide the daily reminder when puzzle is completed
+    hideDailyReminder();
 }
 // Generate emoji grid visualization by recreating scramble from seed
 function generateEmojiGrid(seedString) {

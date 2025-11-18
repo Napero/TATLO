@@ -71,6 +71,38 @@ function generateShareableURL(useCompression = true) {
     }
 }
 
+// Generate shareable text with stats and emoji art for any game
+function generateShareText() {
+    if (!currentSeed) {
+        return null;
+    }
+    
+    const shareURL = generateShareableURL();
+    const scoreData = calculateScore();
+    const difficultyEmoji = scoreData.difficulty.emoji;
+    const difficultyName = scoreData.difficulty.name;
+    
+    // Check if pattern is default (cross pattern)
+    const isDefaultPattern = flipPattern.length === 5 && 
+        flipPattern.some(p => p.dx === 0 && p.dy === 0) &&
+        flipPattern.some(p => p.dx === -1 && p.dy === 0) &&
+        flipPattern.some(p => p.dx === 1 && p.dy === 0) &&
+        flipPattern.some(p => p.dx === 0 && p.dy === -1) &&
+        flipPattern.some(p => p.dx === 0 && p.dy === 1);
+    
+    const patternInfo = isDefaultPattern ? '' : ' • Custom pattern';
+    
+    let shareText = `TATLO Puzzle\n`;
+    shareText += `${difficultyEmoji} ${difficultyName}\n`;
+    shareText += `${SIZE_X}×${SIZE_Y} • ${COLORS} colors${patternInfo}\n\n`;
+    
+    // Add emoji grid visualization
+    shareText += generateEmojiGrid(currentSeed);
+    shareText += `\nPlay: ${shareURL}`;
+    
+    return shareText;
+}
+
 // Copy shareable URL to clipboard
 function copyShareableURL() {
     const shareURL = generateShareableURL();

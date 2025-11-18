@@ -100,12 +100,15 @@ function showSeedModal() {
         const randomSeedBtn = document.getElementById('randomSeedBtn');
         
         copyURLBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(shareURL).then(() => {
-                copyURLBtn.innerHTML = '✓ Copied!';
-                setTimeout(() => {
-                    copyURLBtn.innerHTML = '🔗 Copy Link';
-                }, 2000);
-            });
+            const shareText = generateShareText();
+            if (shareText) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    copyURLBtn.innerHTML = '✓ Copied!';
+                    setTimeout(() => {
+                        copyURLBtn.innerHTML = '🔗 Copy Link';
+                    }, 2000);
+                });
+            }
         });
         
         copySeedBtn.addEventListener('click', () => {
