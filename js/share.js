@@ -92,7 +92,7 @@ function generateShareText() {
     
     const patternInfo = isDefaultPattern ? '' : ' • Custom pattern';
     
-    let shareText = `TATLO Puzzle\n`;
+    let shareText = `TATLO! Puzzle\n`;
     shareText += `${difficultyEmoji} ${difficultyName}\n`;
     shareText += `${SIZE_X}×${SIZE_Y} • ${COLORS} colors${patternInfo}\n\n`;
     
