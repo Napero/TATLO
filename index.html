@@ -18,23 +18,161 @@
     <link rel="icon" type="image/x-icon" href="https://napero.github.io/TATLO/favicon.ico"> <!-- Ajusta la URL del favicon -->
 
     <!-- Styles -->
-    <style>
-        body {
-            background-color: #202020;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 0;
-            margin: 0;
-        }
-        canvas {
-            border: 1px solid black;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <script src="game.js"></script>
+    <!-- Game Container -->
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title-wrapper">
+                <img src="logo.svg" alt="TATLO!" class="game-logo" id="gameLogo">
+                <span class="game-subtitle">(Turn All The Lights Off!)</span>
+            </div>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Time:</span>
+                    <span class="stat-value" id="timeDisplay">0:00</span>
+                    <span class="stat-best" id="timeBest"></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Moves:</span>
+                    <span class="stat-value" id="movesDisplay">0</span>
+                    <span class="stat-best" id="movesBest"></span>
+                </div>
+                <div class="stat-item" id="difficultyDisplay" title="Current puzzle difficulty and expected score">
+                    <span class="stat-label">Difficulty:</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span id="difficultyEmoji" style="font-size: 18px;">😊</span>
+                        <span id="difficultyScore" class="stat-value" style="color: #4CAF50;">1,000</span>
+                    </div>
+                </div>
+                <button class="give-up-button" id="btnGiveUp" title="Give up and auto-solve" style="display: none;">
+                    Give Up (Auto-solve)
+                </button>
+                <button class="auto-click-button" id="btnAutoClick" title="Auto-click solution" style="display: none;">
+                    ⚡ Auto-click
+                </button>
+            </div>
+            <div class="game-controls">
+                <button class="game-button" id="btnInfo" title="Show game information">
+                    <span>ℹ️</span> Info
+                </button>
+                <button class="game-button" id="btnNewScramble" title="Generate new scramble (R)">
+                    <span>🎲</span> New Scramble <span class="keybind">R</span>
+                </button>
+                <button class="game-button" id="btnSeed" title="View and manage seeds">
+                    <span>🔢</span> Seed
+                </button>
+                <button class="game-button" id="btnLeaderboard" title="View best scores">
+                    <span>🏆</span> Leaderboard
+                </button>
+                <button class="game-button" id="btnCustomize" title="Customize game settings">
+                    <span>⚙️</span> Customize
+                </button>
+            </div>
+        </div>
+        <div class="game-canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+    
+    <!-- Customize Submenu Modal -->
+    <div id="customizeMenu" class="customize-menu">
+        <div class="customize-menu-content">
+            <button class="customize-menu-button" id="btnGridSize">
+                <span>📐</span> Grid Size <span class="keybind">I</span>
+            </button>
+            <button class="customize-menu-button" id="btnColors">
+                <span>🎨</span> Colors <span class="keybind">C</span>
+            </button>
+            <button class="customize-menu-button" id="btnPattern">
+                <span>🔲</span> Click Pattern <span class="keybind">S</span>
+            </button>
+            <button class="customize-menu-button" id="btnResetAll">
+                <span>🔄</span> Reset All to Defaults
+            </button>
+        </div>
+    </div>
+    
+    <!-- Victory Modal -->
+    <div id="victoryOverlay" class="victory-overlay">
+        <div class="victory-dialog">
+            <div class="victory-content">
+                <div class="victory-title" id="victoryTitle">You won!</div>
+                <div class="victory-stats">
+                    <div class="victory-stat">
+                        <span class="victory-stat-label">Time</span>
+                        <span class="victory-stat-value" id="victoryTime">0:00</span>
+                    </div>
+                    <div class="victory-stat">
+                        <span class="victory-stat-label">Moves</span>
+                        <span class="victory-stat-value" id="victoryMoves">0</span>
+                    </div>
+                    <div class="victory-stat">
+                        <span class="victory-stat-label">Score</span>
+                        <span class="victory-stat-value" id="victoryScore">1000</span>
+                    </div>
+                </div>
+                <div class="victory-difficulty" id="victoryDifficulty">
+                    <span class="victory-difficulty-emoji">😐</span>
+                    <span class="victory-difficulty-name">Normal</span>
+                </div>
+                <div class="victory-message" id="victoryMessage"></div>
+                <div class="victory-details">
+                    <div class="victory-detail-row">
+                        <span class="victory-detail-label">Grid Size:</span>
+                        <span class="victory-detail-value" id="victoryGridSize">7×7</span>
+                    </div>
+                    <div class="victory-detail-row">
+                        <span class="victory-detail-label">Colors:</span>
+                        <span class="victory-detail-value" id="victoryColors">2</span>
+                    </div>
+                    <div class="victory-detail-row">
+                        <span class="victory-detail-label">Pattern:</span>
+                        <span class="victory-detail-value" id="victoryPattern">Cross</span>
+                    </div>
+                    <div class="victory-detail-row">
+                        <span class="victory-detail-label">Seed:</span>
+                        <span class="victory-seed-container">
+                            <span class="victory-detail-value victory-seed-clickable" id="victorySeed" title="Click to copy">—</span>
+                        </span>
+                    </div>
+                </div>
+                <button class="victory-button" id="victoryNewGame">New Scramble</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Dialog -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-dialog" id="modalDialog">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Enter Values</div>
+                <button class="modal-reset-button" id="modalReset" title="Reset to defaults">
+                    <span>↺</span>
+                </button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div class="modal-error" id="modalError">Invalid input. Please try again.</div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel" id="modalCancel">Cancel</button>
+                <button class="modal-button confirm" id="modalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load modules in dependency order -->
+    <script src="js/constants.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/seed-ui.js"></script>
+    <script src="js/leaderboard-ui.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/solver.js"></script>
+    <script src="js/game-logic.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
