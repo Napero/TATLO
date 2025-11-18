@@ -23,6 +23,12 @@
 <body>
     <!-- Game Container -->
     <div class="game-container">
+        <!-- Hamburger Menu Button (Mobile) -->
+        <button class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">
+            <span class="hamburger-icon">☰</span>
+            <span class="close-icon">✕</span>
+        </button>
+        
         <div class="game-header">
             <div class="game-title-wrapper">
                 <img src="logo.svg" alt="TATLO!" class="game-logo" id="gameLogo">
@@ -45,9 +51,10 @@
                         <span id="difficultyEmoji" style="font-size: 18px;">😊</span>
                         <span id="difficultyScore" class="stat-value" style="color: #4CAF50;">1,000</span>
                     </div>
+                    <span class="stat-best" id="scoreBest"></span>
                 </div>
                 <button class="give-up-button" id="btnGiveUp" title="Give up and auto-solve" style="display: none;">
-                    Give Up (Auto-solve)
+                    🏳️ Give Up (Auto-solve)
                 </button>
                 <button class="auto-click-button" id="btnAutoClick" title="Auto-click solution" style="display: none;">
                     ⚡ Auto-click
@@ -73,6 +80,33 @@
         </div>
         <div class="game-canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+        <div class="mobile-nav-content">
+            <button class="mobile-nav-button" id="mobileInfo">
+                <span>ℹ️</span> Info
+            </button>
+            <button class="mobile-nav-button" id="mobileNewScramble">
+                <span>🎲</span> New Scramble
+            </button>
+            <button class="mobile-nav-button" id="mobileSeed">
+                <span>🔢</span> Seed
+            </button>
+            <button class="mobile-nav-button" id="mobileLeaderboard">
+                <span>🏆</span> Leaderboard
+            </button>
+            <button class="mobile-nav-button" id="mobileCustomize">
+                <span>⚙️</span> Customize
+            </button>
+            <button class="mobile-nav-button" id="mobileGiveUp" style="display: none;">
+                <span>🏳️</span> Give Up (Auto-solve)
+            </button>
+            <button class="mobile-nav-button" id="mobileAutoClick" style="display: none;">
+                <span>⚡</span> Auto-click
+            </button>
         </div>
     </div>
     

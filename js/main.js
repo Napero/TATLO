@@ -116,10 +116,15 @@ function showVictoryModal() {
     // Show modal
     victoryOverlay.classList.add('active');
     console.log('Victory modal shown'); // Debug
+    
+    // Hide hamburger menu on mobile when modal is open
+    if (hamburgerMenu) hamburgerMenu.classList.add('hidden');
 }
 
 function hideVictoryModal() {
     victoryOverlay.classList.remove('active');
+    // Show hamburger menu again on mobile
+    if (hamburgerMenu) hamburgerMenu.classList.remove('hidden');
 }
 
 // Update logo based on number of colors
@@ -167,10 +172,20 @@ function hideAutoClickButton() {
 
 // Initialize game on load
 function initGame() {
+    // Check if on mobile and adjust default grid size
+    if (window.innerWidth <= 768) {
+        // Only change if still at default desktop size
+        if (SIZE_X === DEFAULT_SIZE_X && SIZE_Y === DEFAULT_SIZE_Y) {
+            SIZE_X = 5;
+            SIZE_Y = 7;
+        }
+    }
+    
     // Load best scores for initial config
     const scores = loadBestScores();
     bestTime = scores.bestTime;
     bestMoves = scores.bestMoves;
+    bestScore = scores.bestScore;
     
     // Generate initial colors and matrix
     resetMatrix();
@@ -570,21 +585,21 @@ btnInfo.addEventListener('click', () => {
     modalContent.innerHTML = `
         <div style="color: #d0d0d0; line-height: 1.6; display: flex; flex-direction: column; height: 100%;">
             <!-- Tab Navigation -->
-            <div style="display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #4a4a4a; flex-shrink: 0;">
-                <button class="info-tab active" data-tab="about" style="flex: 1; padding: 10px; background: #4a7c59; border: none; color: white; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span style="font-size: 16px;">📖</span> About
+            <div class="info-tabs-container" style="display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #4a4a4a; flex-shrink: 0; flex-wrap: wrap;">
+                <button class="info-tab active" data-tab="about" style="flex: 1; min-width: 80px; padding: 10px 8px; background: #4a7c59; border: none; color: white; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span style="font-size: 16px;">📖</span> <span class="tab-text">About</span>
                 </button>
-                <button class="info-tab" data-tab="features" style="flex: 1; padding: 10px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span style="font-size: 16px;">✨</span> Features
+                <button class="info-tab" data-tab="features" style="flex: 1; min-width: 80px; padding: 10px 8px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span style="font-size: 16px;">✨</span> <span class="tab-text">Features</span>
                 </button>
-                <button class="info-tab" data-tab="seeds" style="flex: 1; padding: 10px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span style="font-size: 16px;">🎲</span> Seeds
+                <button class="info-tab" data-tab="seeds" style="flex: 1; min-width: 80px; padding: 10px 8px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span style="font-size: 16px;">🎲</span> <span class="tab-text">Seeds</span>
                 </button>
-                <button class="info-tab" data-tab="leaderboard" style="flex: 1; padding: 10px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span style="font-size: 16px;">🏆</span> Leaderboard
+                <button class="info-tab" data-tab="leaderboard" style="flex: 1; min-width: 80px; padding: 10px 8px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span style="font-size: 16px;">🏆</span> <span class="tab-text">Leaderboard</span>
                 </button>
-                <button class="info-tab" data-tab="controls" style="flex: 1; padding: 10px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span style="font-size: 16px;">⌨️</span> Controls
+                <button class="info-tab" data-tab="controls" style="flex: 1; min-width: 80px; padding: 10px 8px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 12px; border-radius: 4px 4px 0 0; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span style="font-size: 16px;">⌨️</span> <span class="tab-text">Controls</span>
                 </button>
             </div>
             
@@ -761,7 +776,201 @@ btnInfo.addEventListener('click', () => {
     document.addEventListener('keydown', keyHandler);
 });
 
+// Show customize options as a modal (for mobile)
+function showCustomizeModal() {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+    
+    modalTitle.textContent = 'Customize Game';
+    modalContent.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="customize-menu-button" id="modalBtnGridSize">
+                <span>📐</span> Grid Size <span class="keybind">I</span>
+            </button>
+            <button class="customize-menu-button" id="modalBtnColors">
+                <span>🎨</span> Colors <span class="keybind">C</span>
+            </button>
+            <button class="customize-menu-button" id="modalBtnPattern">
+                <span>✨</span> Pattern <span class="keybind">S</span>
+            </button>
+            <button class="customize-menu-button" id="modalBtnResetAll">
+                <span>🔄</span> Reset All Settings
+            </button>
+        </div>
+    `;
+    
+    modalOverlay.classList.add('active');
+    modalCancel.style.display = 'none';
+    modalConfirm.textContent = 'Close';
+    
+    const confirmHandler = () => {
+        hideModal();
+        modalCancel.style.display = '';
+        modalConfirm.textContent = 'Confirm';
+        cleanup();
+    };
+    
+    const cleanup = () => {
+        modalConfirm.removeEventListener('click', confirmHandler);
+    };
+    
+    modalConfirm.addEventListener('click', confirmHandler);
+    
+    // Add button handlers
+    setTimeout(() => {
+        document.getElementById('modalBtnGridSize')?.addEventListener('click', () => {
+            hideModal();
+            btnGridSize.click();
+        });
+        document.getElementById('modalBtnColors')?.addEventListener('click', () => {
+            hideModal();
+            btnColors.click();
+        });
+        document.getElementById('modalBtnPattern')?.addEventListener('click', () => {
+            hideModal();
+            btnPattern.click();
+        });
+        document.getElementById('modalBtnResetAll')?.addEventListener('click', () => {
+            hideModal();
+            btnResetAll.click();
+        });
+    }, 0);
+}
+
+// Mobile Hamburger Menu
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+
+// Mobile menu buttons
+const mobileInfo = document.getElementById('mobileInfo');
+const mobileNewScramble = document.getElementById('mobileNewScramble');
+const mobileSeed = document.getElementById('mobileSeed');
+const mobileLeaderboard = document.getElementById('mobileLeaderboard');
+const mobileCustomize = document.getElementById('mobileCustomize');
+const mobileGiveUp = document.getElementById('mobileGiveUp');
+const mobileAutoClick = document.getElementById('mobileAutoClick');
+
+// Toggle hamburger menu
+hamburgerMenu.addEventListener('click', () => {
+    hamburgerMenu.classList.toggle('active');
+    mobileNavOverlay.classList.toggle('active');
+});
+
+// Close menu when clicking outside
+mobileNavOverlay.addEventListener('click', (e) => {
+    if (e.target === mobileNavOverlay) {
+        hamburgerMenu.classList.remove('active');
+        mobileNavOverlay.classList.remove('active');
+    }
+});
+
+// Helper function to close mobile menu
+function closeMobileMenu() {
+    hamburgerMenu.classList.remove('active');
+    mobileNavOverlay.classList.remove('active');
+}
+
+// Mobile button handlers (mirror desktop functionality)
+mobileInfo.addEventListener('click', () => {
+    closeMobileMenu();
+    btnInfo.click();
+});
+
+mobileNewScramble.addEventListener('click', () => {
+    closeMobileMenu();
+    btnNewScramble.click();
+});
+
+mobileSeed.addEventListener('click', () => {
+    closeMobileMenu();
+    btnSeed.click();
+});
+
+mobileLeaderboard.addEventListener('click', () => {
+    closeMobileMenu();
+    btnLeaderboard.click();
+});
+
+mobileCustomize.addEventListener('click', () => {
+    closeMobileMenu();
+    // Show customize menu as a modal on mobile instead of dropdown
+    if (window.innerWidth <= 768) {
+        showCustomizeModal();
+    } else {
+        btnCustomize.click();
+    }
+});
+
+mobileGiveUp.addEventListener('click', () => {
+    closeMobileMenu();
+    btnGiveUp.click();
+});
+
+mobileAutoClick.addEventListener('click', () => {
+    closeMobileMenu();
+    btnAutoClick.click();
+    // Sync the active class
+    if (btnAutoClick.classList.contains('active')) {
+        mobileAutoClick.classList.add('active');
+    } else {
+        mobileAutoClick.classList.remove('active');
+    }
+});
+
+// Sync mobile button visibility with desktop buttons
+function syncMobileButtonVisibility() {
+    if (mobileGiveUp && btnGiveUp) {
+        mobileGiveUp.style.display = btnGiveUp.style.display;
+    }
+    if (mobileAutoClick && btnAutoClick) {
+        mobileAutoClick.style.display = btnAutoClick.style.display;
+        // Also sync active state
+        if (btnAutoClick.classList.contains('active')) {
+            mobileAutoClick.classList.add('active');
+        } else {
+            mobileAutoClick.classList.remove('active');
+        }
+    }
+}
+
+// Override the show/hide functions to sync mobile buttons
+const originalShowGiveUpButton = window.showGiveUpButton;
+if (typeof originalShowGiveUpButton === 'function') {
+    window.showGiveUpButton = function() {
+        originalShowGiveUpButton();
+        syncMobileButtonVisibility();
+    };
+}
+
+const originalHideGiveUpButton = window.hideGiveUpButton;
+if (typeof originalHideGiveUpButton === 'function') {
+    window.hideGiveUpButton = function() {
+        originalHideGiveUpButton();
+        syncMobileButtonVisibility();
+    };
+}
+
+const originalShowAutoClickButton = window.showAutoClickButton;
+if (typeof originalShowAutoClickButton === 'function') {
+    window.showAutoClickButton = function() {
+        originalShowAutoClickButton();
+        syncMobileButtonVisibility();
+    };
+}
+
+const originalHideAutoClickButton = window.hideAutoClickButton;
+if (typeof originalHideAutoClickButton === 'function') {
+    window.hideAutoClickButton = function() {
+        originalHideAutoClickButton();
+        syncMobileButtonVisibility();
+    };
+}
+
 // Start the game when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
+    syncMobileButtonVisibility();
 });

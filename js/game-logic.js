@@ -50,7 +50,20 @@ function resetMatrix(seed = null) {
     
     // Use seeded random for reproducible scrambles
     const rng = seededRandom(seed);
-    let steps = SIZE_X * SIZE_Y * Math.pow(COLORS, 2);
+    
+    // Improved scrambling formula:
+    // Base: gridSize × colors × ln(colors)
+    // Adjusted for pattern size (larger patterns mix faster, need fewer scrambles)
+    const gridSize = SIZE_X * SIZE_Y;
+    const basePatternSize = 5; // Reference pattern size (default cross)
+    const actualPatternSize = flipPattern.length;
+    const patternAdjustment = basePatternSize / actualPatternSize;
+    
+    // Calculate scramble count with logarithmic color scaling and pattern adjustment
+    let steps = Math.ceil(gridSize * COLORS * Math.log(COLORS) * patternAdjustment);
+    
+    // Ensure minimum scrambles for very small configs
+    steps = Math.max(steps, gridSize * 2);
     
     for (let i = 0; i < steps; i++) {
         const x = Math.floor(rng() * SIZE_X);

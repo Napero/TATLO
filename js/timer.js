@@ -8,6 +8,7 @@ let timerInterval = null;
 let bestTime = null;
 let bestMoves = null;
 let bestSeed = null;
+let bestScore = null;
 
 // Format time as M:SS.CC (centiseconds)
 function formatTime(ms) {
@@ -48,6 +49,15 @@ function updateDisplay() {
             movesBest.textContent = '';
         }
     }
+    
+    const scoreBest = document.getElementById('scoreBest');
+    if (scoreBest) {
+        if (bestScore !== null) {
+            scoreBest.textContent = `Best: ${formatScore(bestScore)}`;
+        } else {
+            scoreBest.textContent = '';
+        }
+    }
 }
 
 // Start the timer
@@ -83,6 +93,7 @@ function resetTimerAndMoves() {
     bestTime = scores.bestTime;
     bestMoves = scores.bestMoves;
     bestSeed = scores.bestSeed;
+    bestScore = scores.bestScore;
     
     updateDisplay();
 }
@@ -90,6 +101,8 @@ function resetTimerAndMoves() {
 // Update best scores if current game is better
 function updateBestScores() {
     const finalTime = elapsedTime;
+    const scoreData = calculateScore();
+    const currentDifficultyScore = scoreData ? scoreData.totalScore : null;
     let updated = false;
     
     if (bestTime === null || finalTime < bestTime) {
@@ -104,9 +117,16 @@ function updateBestScores() {
         }
         updated = true;
     }
+    if (bestScore === null || (currentDifficultyScore !== null && currentDifficultyScore > bestScore)) {
+        bestScore = currentDifficultyScore;
+        if (!updated) {
+            bestSeed = currentSeed;
+        }
+        updated = true;
+    }
     
     if (updated) {
-        saveBestScores(bestTime, bestMoves, bestSeed);
+        saveBestScores(bestTime, bestMoves, bestSeed, currentDifficultyScore, bestScore);
     }
     
     updateDisplay();

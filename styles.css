@@ -24,6 +24,7 @@ body {
     align-items: center;
     border-bottom: 2px solid #4a4a4a;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .game-stats {
@@ -32,6 +33,7 @@ body {
     color: #f0f0f0;
     font-family: 'Courier New', Courier, monospace;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .stat-item {
@@ -39,6 +41,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    min-width: 80px;
 }
 
 .give-up-button {
@@ -173,6 +176,7 @@ body {
 .game-controls {
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .game-button {
@@ -190,6 +194,7 @@ body {
     align-items: center;
     gap: 8px;
     justify-content: space-between;
+    white-space: nowrap;
 }
 
 .game-button:hover {
@@ -741,3 +746,353 @@ canvas.game-won {
     background-color: #8a8a8a;
 }
 
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    background-color: #4a4a4a;
+    border: 2px solid #5a5a5a;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.hamburger-menu.hidden {
+    display: none !important;
+}
+
+/* Lower z-index when mobile menu is NOT active */
+.hamburger-menu:not(.active) {
+    z-index: 999;
+}
+
+.hamburger-menu .hamburger-icon,
+.hamburger-menu .close-icon {
+    font-size: 24px;
+    color: #f0f0f0;
+    transition: opacity 0.2s;
+}
+
+.hamburger-menu .close-icon {
+    display: none;
+}
+
+.hamburger-menu.active .hamburger-icon {
+    display: none;
+}
+
+.hamburger-menu.active .close-icon {
+    display: block;
+}
+
+.hamburger-menu:hover {
+    background-color: #5a5a5a;
+}
+
+/* Mobile Navigation Overlay */
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.mobile-nav-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.mobile-nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.mobile-nav-button {
+    padding: 18px 24px;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-nav-button:hover {
+    background-color: #4a4a4a;
+    border-color: #5a5a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-nav-button:active {
+    transform: translateY(0);
+}
+
+.mobile-nav-button span {
+    font-size: 24px;
+}
+
+/* Special styling for Give Up and Auto-click in mobile menu */
+#mobileGiveUp {
+    background-color: #8b0000;
+    border-color: #a00000;
+    color: #ffffff;
+    font-weight: 600;
+    justify-content: flex-start;
+}
+
+#mobileGiveUp:hover {
+    background-color: #a00000;
+    border-color: #b80000;
+}
+
+#mobileAutoClick {
+    background-color: #1e40af;
+    border-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    justify-content: flex-start;
+}
+
+#mobileAutoClick:hover {
+    background-color: #2563eb;
+    border-color: #3b82f6;
+}
+
+#mobileAutoClick.active {
+    background-color: #059669;
+    border-color: #10b981;
+    animation: pulse 1s infinite;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .hamburger-menu {
+        display: flex;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        padding: 12px 15px;
+        gap: 12px;
+    }
+    
+    .game-title-wrapper {
+        align-items: center;
+        width: 100%;
+    }
+    
+    .game-logo {
+        height: 32px;
+    }
+    
+    .game-subtitle {
+        font-size: 12px;
+    }
+    
+    .game-stats {
+        justify-content: space-around;
+        width: 100%;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        gap: 2px;
+    }
+    
+    .stat-label {
+        font-size: 10px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+    }
+    
+    .stat-best {
+        font-size: 9px;
+    }
+    
+    /* Show difficulty on mobile */
+    #difficultyDisplay {
+        display: flex !important;
+    }
+    
+    #difficultyDisplay .stat-label {
+        display: none;
+    }
+    
+    #difficultyDisplay > div {
+        flex-direction: row !important;
+    }
+    
+    #difficultyScore {
+        font-size: 16px !important;
+    }
+    
+    #difficultyEmoji {
+        font-size: 20px !important;
+    }
+    
+    /* Hide desktop controls on mobile */
+    .game-controls {
+        display: none !important;
+    }
+    
+    .give-up-button,
+    .auto-click-button {
+        display: none !important;
+    }
+    
+    .game-canvas-wrapper {
+        padding: 5px;
+    }
+    
+    /* Adjust modals for mobile */
+    .modal-dialog {
+        min-width: unset;
+        width: 90vw;
+        max-width: 90vw;
+        max-height: 90vh;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+    
+    .modal-dialog.tabbed-modal {
+        width: 90vw;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .victory-dialog,
+    .seed-modal-content,
+    .leaderboard-content {
+        min-width: unset;
+        width: 90vw;
+        max-width: 90vw;
+        max-height: 85vh;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+    
+    .victory-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .victory-title {
+        font-size: 24px;
+    }
+    
+    .victory-stat-value {
+        font-size: 22px;
+    }
+    
+    .modal-content h2 {
+        font-size: 20px;
+    }
+    
+    .modal-content p,
+    .modal-content li {
+        font-size: 14px;
+    }
+    
+    /* Hide tab text on very small screens, show only emojis */
+    .info-tab .tab-text,
+    .leaderboard-tab .tab-text {
+        display: none;
+    }
+    
+    .info-tab,
+    .leaderboard-tab {
+        min-width: 60px !important;
+        padding: 10px 5px !important;
+    }
+    
+    /* Make victory stats wrap on mobile */
+    .victory-stats {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px !important;
+    }
+    
+    .victory-stat {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-header {
+        padding: 10px 12px;
+    }
+    
+    .game-logo {
+        height: 28px;
+    }
+    
+    .game-subtitle {
+        font-size: 11px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+    }
+    
+    .stat-label {
+        font-size: 9px;
+    }
+    
+    .victory-dialog,
+    .modal-content,
+    .seed-modal-content,
+    .leaderboard-content {
+        padding: 15px;
+    }
+    
+    .mobile-nav-button {
+        padding: 15px 20px;
+        font-size: 16px;
+    }
+    
+    .mobile-nav-button span {
+        font-size: 20px;
+    }
+    
+    /* Extra compact modals */
+    .modal-dialog,
+    .victory-dialog,
+    .seed-modal-content,
+    .leaderboard-content {
+        padding: 15px;
+        max-height: 90vh;
+    }
+}

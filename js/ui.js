@@ -114,6 +114,11 @@ function showModal(title, inputs, onConfirm, defaults = null) {
     modalCancel.addEventListener('click', cancelHandler);
     modalReset.addEventListener('click', resetHandler);
     document.addEventListener('keydown', keyHandler);
+    
+    // Hide hamburger menu on mobile when modal is open
+    if (typeof hamburgerMenu !== 'undefined' && hamburgerMenu) {
+        hamburgerMenu.classList.add('hidden');
+    }
 }
 
 // Hide the modal
@@ -122,6 +127,8 @@ function hideModal() {
     modalError.classList.remove('active');
     // Remove tabbed-modal class when closing
     modalDialog.classList.remove('tabbed-modal');
+    // Show hamburger menu again on mobile
+    if (hamburgerMenu) hamburgerMenu.classList.remove('hidden');
 }
 
 // Show grid selector for customizing flip pattern

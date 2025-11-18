@@ -1,5 +1,8 @@
 // Seed Management UI
 
+// Track consecutive invalid seed attempts
+let invalidSeedAttempts = 0;
+
 // Show seed management modal
 function showSeedModal() {
     modalTitle.textContent = 'Seed Management';
@@ -95,6 +98,7 @@ function showSeedModal() {
         
         customSeedInput.addEventListener('input', () => {
             seedError.style.display = 'none';
+            invalidSeedAttempts = 0; // Reset counter when user starts typing
         });
         
         if (randomSeedBtn) {
@@ -132,9 +136,22 @@ function showSeedModal() {
 // Load a seed and apply the configuration (enters set seed mode)
 function loadSeed(seedString) {
     const parsed = parseSeedString(seedString);
-    if (!parsed) {
+    
+    // Handle any type of invalid seed
+    if (!parsed || parsed === 'exploit') {
+        invalidSeedAttempts++;
+        
+        // Show easter egg modal on 3rd consecutive failure
+        if (invalidSeedAttempts >= 3) {
+            showExploitModal();
+            invalidSeedAttempts = 0; // Reset counter
+        }
+        
         return false;
     }
+    
+    // Valid seed - reset counter and apply configuration
+    invalidSeedAttempts = 0;
     
     // Enter set seed mode
     isSetSeedMode = true;
@@ -153,6 +170,46 @@ function loadSeed(seedString) {
     updateDifficultyDisplay();
     
     return true;
+}
+
+// Show fun easter egg modal for exploit attempts
+function showExploitModal() {
+    modalTitle.textContent = 'Ummmmmm...';
+    modalError.classList.remove('active');
+    modalReset.classList.remove('visible');
+    
+    modalContent.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #f0f0f0;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+            <h2 style="color: #ff6b6b; margin: 15px 0;">What are you trying to break?</h2>
+            <p style="font-size: 18px; margin: 20px 0; color: #d0d0d0;">(thx haykam hehe)</p>
+        </div>
+    `;
+    
+    modalCancel.style.display = 'none';
+    modalConfirm.textContent = 'Bye';
+    modalOverlay.classList.add('active');
+    
+    const confirmHandler = () => {
+        hideModal();
+        modalCancel.style.display = '';
+        modalConfirm.textContent = 'Confirm';
+        cleanup();
+    };
+    
+    const keyHandler = (e) => {
+        if (e.key === 'Enter' || e.key === 'Escape') {
+            confirmHandler();
+        }
+    };
+    
+    const cleanup = () => {
+        modalConfirm.removeEventListener('click', confirmHandler);
+        document.removeEventListener('keydown', keyHandler);
+    };
+    
+    modalConfirm.addEventListener('click', confirmHandler);
+    document.addEventListener('keydown', keyHandler);
 }
 
 // Exit set seed mode and return to random seeds

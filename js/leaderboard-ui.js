@@ -1,5 +1,37 @@
 // Leaderboard UI
 
+// Calculate difficulty from seed string
+function getDifficultyFromSeed(seedString) {
+    if (!seedString) return null;
+    
+    const parsed = parseSeedString(seedString);
+    if (!parsed || parsed === 'exploit') return null;
+    
+    // Temporarily store current config
+    const oldSizeX = SIZE_X;
+    const oldSizeY = SIZE_Y;
+    const oldColors = COLORS;
+    const oldPattern = [...flipPattern];
+    
+    // Apply seed config
+    SIZE_X = parsed.sizeX;
+    SIZE_Y = parsed.sizeY;
+    COLORS = parsed.colors;
+    flipPattern = parsed.pattern;
+    
+    // Calculate score
+    const scoreData = calculateScore();
+    const difficulty = scoreData ? scoreData.difficulty : null;
+    
+    // Restore original config
+    SIZE_X = oldSizeX;
+    SIZE_Y = oldSizeY;
+    COLORS = oldColors;
+    flipPattern = oldPattern;
+    
+    return difficulty;
+}
+
 // Get all best scores from localStorage
 function getAllBestScores() {
     const randomScores = [];
@@ -15,9 +47,18 @@ function getAllBestScores() {
             const time = parseInt(localStorage.getItem(key));
             const moves = localStorage.getItem(`tatlo_bestMoves_${configKey}`) ? parseInt(localStorage.getItem(`tatlo_bestMoves_${configKey}`)) : null;
             const seed = localStorage.getItem(`tatlo_bestSeed_${configKey}`) || null;
+            const difficultyScore = localStorage.getItem(`tatlo_bestDifficulty_${configKey}`) ? parseInt(localStorage.getItem(`tatlo_bestDifficulty_${configKey}`)) : null;
+            
+            let difficulty = null;
+            if (difficultyScore !== null) {
+                difficulty = getDifficultyRating(difficultyScore);
+            } else if (seed) {
+                // Fallback: calculate from seed if not stored
+                difficulty = getDifficultyFromSeed(seed);
+            }
             
             if (time !== null) {
-                randomScores.push({ configKey, time, moves, seed });
+                randomScores.push({ configKey, time, moves, seed, difficulty });
             }
         }
         
@@ -26,9 +67,18 @@ function getAllBestScores() {
             const seedKey = key.replace('tatlo_setSeed_bestTime_', '');
             const time = parseInt(localStorage.getItem(key));
             const moves = localStorage.getItem(`tatlo_setSeed_bestMoves_${seedKey}`) ? parseInt(localStorage.getItem(`tatlo_setSeed_bestMoves_${seedKey}`)) : null;
+            const difficultyScore = localStorage.getItem(`tatlo_setSeed_bestDifficulty_${seedKey}`) ? parseInt(localStorage.getItem(`tatlo_setSeed_bestDifficulty_${seedKey}`)) : null;
+            
+            let difficulty = null;
+            if (difficultyScore !== null) {
+                difficulty = getDifficultyRating(difficultyScore);
+            } else {
+                // Fallback: calculate from seed
+                difficulty = getDifficultyFromSeed(seedKey);
+            }
             
             if (time !== null) {
-                setSeedScores.push({ seed: seedKey, time, moves });
+                setSeedScores.push({ seed: seedKey, time, moves, difficulty });
             }
         }
     }
@@ -65,14 +115,16 @@ function showLeaderboard() {
         randomHtml = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed;">';
         randomHtml += '<colgroup>';
         randomHtml += '<col style="width: 40px;">'; // Rank
-        randomHtml += '<col style="width: 140px;">'; // Config
+        randomHtml += '<col style="width: 120px;">'; // Config
+        randomHtml += '<col style="width: 70px;">'; // Difficulty
         randomHtml += '<col style="width: 90px;">'; // Time
         randomHtml += '<col style="width: 70px;">'; // Moves
-        randomHtml += '<col style="width: 150px;">'; // Seed (smaller)
+        randomHtml += '<col style="width: 150px;">'; // Seed
         randomHtml += '</colgroup>';
         randomHtml += '<thead><tr style="background: #2a2a2a; text-align: left;">';
         randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">#</th>';
         randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Config</th>';
+        randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Difficulty</th>';
         randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Time</th>';
         randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Moves</th>';
         randomHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Seed</th>';
@@ -80,9 +132,13 @@ function showLeaderboard() {
         
         randomScores.forEach((score, index) => {
             const bgColor = index % 2 === 0 ? '#3a3a3a' : '#333333';
+            const difficultyDisplay = score.difficulty 
+                ? `<span style="color: ${score.difficulty.color};">${score.difficulty.emoji}</span>` 
+                : 'N/A';
             randomHtml += `<tr style="background: ${bgColor};">`;
             randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a;">${index + 1}</td>`;
             randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a;">${formatConfigKey(score.configKey)}</td>`;
+            randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; text-align: center;">${difficultyDisplay}</td>`;
             randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; color: #88ccff;">${formatTime(score.time)}</td>`;
             randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; color: #88ff88;">${score.moves || 'N/A'}</td>`;
             randomHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; font-size: 10px; word-break: break-all; cursor: pointer; color: #88ccff;" 
@@ -102,6 +158,7 @@ function showLeaderboard() {
         setSeedHtml += '<colgroup>';
         setSeedHtml += '<col style="width: 40px;">'; // Rank
         setSeedHtml += '<col>'; // Seed (flexible)
+        setSeedHtml += '<col style="width: 60px;">'; // Difficulty
         setSeedHtml += '<col style="width: 80px;">'; // Time
         setSeedHtml += '<col style="width: 60px;">'; // Moves
         setSeedHtml += '<col style="width: 80px;">'; // Action
@@ -109,6 +166,7 @@ function showLeaderboard() {
         setSeedHtml += '<thead><tr style="background: #2a2a2a; text-align: left;">';
         setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">#</th>';
         setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Seed</th>';
+        setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Diff</th>';
         setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Time</th>';
         setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Moves</th>';
         setSeedHtml += '<th style="padding: 8px; border: 1px solid #4a4a4a;">Action</th>';
@@ -116,10 +174,14 @@ function showLeaderboard() {
         
         setSeedScores.forEach((score, index) => {
             const bgColor = index % 2 === 0 ? '#3a3a3a' : '#333333';
+            const difficultyDisplay = score.difficulty 
+                ? `<span style="color: ${score.difficulty.color};">${score.difficulty.emoji}</span>` 
+                : 'N/A';
             setSeedHtml += `<tr style="background: ${bgColor};">`;
             setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a;">${index + 1}</td>`;
             setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; font-size: 10px; word-break: break-all; cursor: pointer; color: #88ccff;" 
                              class="copy-seed" data-seed="${score.seed}" title="Click to copy">${score.seed}</td>`;
+            setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; text-align: center;">${difficultyDisplay}</td>`;
             setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; color: #88ccff;">${formatTime(score.time)}</td>`;
             setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a; color: #88ff88;">${score.moves || 'N/A'}</td>`;
             setSeedHtml += `<td style="padding: 8px; border: 1px solid #4a4a4a;"><button class="load-seed-btn" data-seed="${score.seed}" style="padding: 4px 8px; background: #4a7c59; border: none; color: white; border-radius: 3px; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 11px;">▶️ Load</button></td>`;
@@ -132,12 +194,12 @@ function showLeaderboard() {
     modalContent.innerHTML = `
         <div style="color: #d0d0d0; line-height: 1.6; display: flex; flex-direction: column; height: 100%;">
             <!-- Tab Navigation -->
-            <div style="display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #4a4a4a; flex-shrink: 0;">
-                <button id="tabRandomSeed" class="leaderboard-tab active" style="flex: 1; padding: 12px; background: #4a7c59; border: none; color: white; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 4px 4px 0 0; transition: background 0.2s;">
-                    🎲 Random Seed
+            <div class="leaderboard-tabs-container" style="display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #4a4a4a; flex-shrink: 0; flex-wrap: wrap;">
+                <button id="tabRandomSeed" class="leaderboard-tab active" style="flex: 1; min-width: 120px; padding: 12px 8px; background: #4a7c59; border: none; color: white; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 4px 4px 0 0; transition: background 0.2s;">
+                    <span style="font-size: 16px;">🎲</span> <span class="tab-text">Random Seed</span>
                 </button>
-                <button id="tabSetSeed" class="leaderboard-tab" style="flex: 1; padding: 12px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 4px 4px 0 0; transition: background 0.2s;">
-                    🔢 Set Seed
+                <button id="tabSetSeed" class="leaderboard-tab" style="flex: 1; min-width: 120px; padding: 12px 8px; background: #3a3a3a; border: none; color: #b0b0b0; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 4px 4px 0 0; transition: background 0.2s;">
+                    <span style="font-size: 16px;">🔢</span> <span class="tab-text">Set Seed</span>
                 </button>
             </div>
             
