@@ -108,24 +108,43 @@
             <button class="mobile-nav-button" id="mobileInfo">
                 <span>ℹ️</span> Info
             </button>
-            <button class="mobile-nav-button" id="mobileDaily">
-                <span>📅</span> Daily
+            
+            <div class="mobile-nav-section-title">🧩 Puzzle</div>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileLeaveSetSeed" style="display: none;">
+                <span>❌</span> Leave Set Seed Mode
             </button>
-            <button class="mobile-nav-button" id="mobileNewScramble">
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileDaily">
+                <span>📅</span> Daily Puzzle
+            </button>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileNewScramble">
                 <span>🎲</span> New Scramble
             </button>
-            <button class="mobile-nav-button" id="mobileSeed">
-                <span>🔢</span> Seed
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileRandomPuzzle">
+                <span>✨</span> Random Puzzle
             </button>
-            <button class="mobile-nav-button" id="mobileShare">
-                <span>🔗</span> Share
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileSeed">
+                <span>🔢</span> Seed & Share
             </button>
-            <button class="mobile-nav-button" id="mobileLeaderboard">
+            
+            <div class="mobile-nav-section-title">📊 Stats</div>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileLeaderboard">
                 <span>🏆</span> Leaderboard
             </button>
-            <button class="mobile-nav-button" id="mobileCustomize">
-                <span>⚙️</span> Customize
+            
+            <div class="mobile-nav-section-title">⚙️ Customize</div>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileGridSize">
+                <span>📐</span> Grid Size
             </button>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileColors">
+                <span>🎨</span> Colors
+            </button>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobilePattern">
+                <span>🔲</span> Click Pattern
+            </button>
+            <button class="mobile-nav-button mobile-nav-button-indented" id="mobileResetAll">
+                <span>🔄</span> Reset All to Defaults
+            </button>
+            
             <button class="mobile-nav-button" id="mobileGiveUp" style="display: none;">
                 <span>🏳️</span> Give Up (Auto-solve)
             </button>
@@ -156,11 +175,17 @@
     <!-- Puzzle Submenu Modal -->
     <div id="puzzleMenu" class="customize-menu">
         <div class="customize-menu-content">
+            <button class="customize-menu-button" id="btnLeaveSetSeed" style="display: none;">
+                <span>❌</span> Leave Set Seed Mode
+            </button>
             <button class="customize-menu-button" id="btnDaily">
                 <span>📅</span> Daily Puzzle
             </button>
             <button class="customize-menu-button" id="btnNewScramble">
                 <span>🎲</span> New Scramble <span class="keybind">R</span>
+            </button>
+            <button class="customize-menu-button" id="btnRandomPuzzle">
+                <span>✨</span> Random Puzzle
             </button>
             <button class="customize-menu-button" id="btnSeedAndShare">
                 <span>🔢</span> Seed & Share
@@ -225,7 +250,15 @@
                 <button class="victory-button victory-share-button" id="victoryShare" style="display: none;">
                     <span>📊</span> Share Results
                 </button>
-                <button class="victory-button" id="victoryNewGame">New Scramble</button>
+                <div class="victory-button-row">
+                    <button class="victory-button victory-icon-button" id="victoryReplay" title="Replay same puzzle">
+                        <span>🔁</span>
+                    </button>
+                    <button class="victory-button" id="victoryNewGame">New Scramble</button>
+                    <button class="victory-button victory-icon-button" id="victoryShareGame" title="Share puzzle">
+                        <span>📤</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -259,6 +292,7 @@
     <script src="js/seed-ui.js"></script>
     <script src="js/share.js"></script>
     <script src="js/daily.js"></script>
+    <script src="js/random-puzzle.js"></script>
     <script src="js/leaderboard-ui.js"></script>
     <script src="js/scoring.js"></script>
     <script src="js/solver.js"></script>

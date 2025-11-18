@@ -618,6 +618,24 @@ canvas.game-won {
     transform: translateY(0);
 }
 
+.victory-button-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.victory-icon-button {
+    padding: 12px 16px;
+    min-width: unset;
+    flex-shrink: 0;
+}
+
+.victory-icon-button span {
+    font-size: 20px;
+}
+
 .modal-dialog {
     background-color: #3a3a3a;
     border-radius: 8px;
@@ -925,6 +943,20 @@ canvas.game-won {
     padding: 20px;
     width: 90%;
     max-width: 400px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.mobile-nav-section-title {
+    color: #888;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    margin-bottom: -5px;
+    padding-left: 10px;
 }
 
 .mobile-nav-button {
@@ -941,6 +973,12 @@ canvas.game-won {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.mobile-nav-button-indented {
+    margin-left: 15px;
+    padding: 15px 20px;
+    font-size: 16px;
 }
 
 .mobile-nav-button:hover {
@@ -1079,7 +1117,7 @@ canvas.game-won {
         min-width: unset;
         width: 90vw;
         max-width: 90vw;
-        max-height: 90vh;
+        max-height: 85vh;
         padding: 20px;
         box-sizing: border-box;
         overflow-y: auto;
@@ -1090,6 +1128,34 @@ canvas.game-won {
         max-height: 85vh;
         display: flex;
         flex-direction: column;
+    }
+    
+    /* Ensure customize menu works on mobile */
+    .customize-menu {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw !important;
+        max-width: 400px !important;
+        max-height: 85vh !important;
+        overflow-y: auto;
+    }
+    
+    .customize-menu.active {
+        display: block;
+    }
+    
+    .customize-menu-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .customize-menu-button {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 16px;
     }
     
     .victory-dialog,

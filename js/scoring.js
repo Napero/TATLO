@@ -261,14 +261,14 @@ function calculateScore() {
 
 // Get difficulty rating based on score
 function getDifficultyRating(score) {
-    if (score < 1000) return { name: 'Free', emoji: '😊', color: '#4ade80' };
-    if (score < 2000) return { name: 'Normal', emoji: '🙂', color: '#86efac' };
-    if (score < 5000) return { name: 'Hard', emoji: '😐', color: '#fbbf24' };
-    if (score < 8000) return { name: 'Very Hard', emoji: '😅', color: '#fb923c' };
-    if (score < 12000) return { name: 'Ummmm', emoji: '😨', color: '#f87171' };
-    if (score < 20000) return { name: 'Horrified', emoji: '😱', color: '#dc2626' };
-    if (score < 50000) return { name: 'Brutal', emoji: '😱', color: '#991b1b' };
-    return { name: 'Impossible', emoji: '💀', color: '#7f1d1d' };
+    if (score < 1000) return { name: 'Free', emoji: '🎁', color: '#4ade80' };
+    if (score < 2000) return { name: 'Normal', emoji: '😊', color: '#86efac' };
+    if (score < 5000) return { name: 'Hard', emoji: '😰', color: '#fbbf24' };
+    if (score < 8000) return { name: 'Very Hard', emoji: '😱', color: '#fb923c' };
+    if (score < 12000) return { name: 'Ummmm', emoji: '🤯', color: '#f87171' };
+    if (score < 20000) return { name: 'Horrified', emoji: '😨', color: '#dc2626' };
+    if (score < 50000) return { name: 'Brutal', emoji: '💀', color: '#991b1b' };
+    return { name: 'Impossible', emoji: '☠️', color: '#7f1d1d' };
 }
 
 // Format score with thousands separators

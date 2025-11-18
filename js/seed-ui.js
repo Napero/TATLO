@@ -263,13 +263,60 @@ function updateNewScrambleButton() {
     const btn = document.getElementById('btnNewScramble');
     if (!btn) return;
     
+    const puzzleBtn = document.getElementById('btnPuzzle');
+    const leaveSetSeedBtn = document.getElementById('btnLeaveSetSeed');
+    const mobileLeaveSetSeedBtn = document.getElementById('mobileLeaveSetSeed');
+    const mobileNewScrambleBtn = document.getElementById('mobileNewScramble');
+    
     if (isSetSeedMode) {
         btn.innerHTML = '<span>🔄</span> Reset Set Seed <span class="keybind">R</span>';
         btn.style.background = '#7c4a4a';
         btn.style.color = '#ffcccc';
+        
+        // Also update puzzle menu button to indicate set seed mode
+        if (puzzleBtn) {
+            puzzleBtn.style.background = '#7c4a4a';
+            puzzleBtn.style.color = '#ffcccc';
+        }
+        
+        // Show Leave Set Seed Mode button
+        if (leaveSetSeedBtn) {
+            leaveSetSeedBtn.style.display = 'flex';
+        }
+        if (mobileLeaveSetSeedBtn) {
+            mobileLeaveSetSeedBtn.style.display = 'flex';
+        }
+        
+        // Update mobile new scramble button
+        if (mobileNewScrambleBtn) {
+            mobileNewScrambleBtn.innerHTML = '<span>🔄</span> Reset Set Seed';
+            mobileNewScrambleBtn.style.background = '#7c4a4a';
+            mobileNewScrambleBtn.style.color = '#ffcccc';
+        }
     } else {
         btn.innerHTML = '<span>🎲</span> New Scramble <span class="keybind">R</span>';
         btn.style.background = '';
         btn.style.color = '';
+        
+        // Reset puzzle menu button to default
+        if (puzzleBtn) {
+            puzzleBtn.style.background = '';
+            puzzleBtn.style.color = '';
+        }
+        
+        // Hide Leave Set Seed Mode button
+        if (leaveSetSeedBtn) {
+            leaveSetSeedBtn.style.display = 'none';
+        }
+        if (mobileLeaveSetSeedBtn) {
+            mobileLeaveSetSeedBtn.style.display = 'none';
+        }
+        
+        // Reset mobile new scramble button
+        if (mobileNewScrambleBtn) {
+            mobileNewScrambleBtn.innerHTML = '<span>🎲</span> New Scramble';
+            mobileNewScrambleBtn.style.background = '';
+            mobileNewScrambleBtn.style.color = '';
+        }
     }
 }

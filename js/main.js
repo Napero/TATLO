@@ -13,6 +13,8 @@ const victoryColors = document.getElementById('victoryColors');
 const victoryPattern = document.getElementById('victoryPattern');
 const victorySeed = document.getElementById('victorySeed');
 const victoryNewGame = document.getElementById('victoryNewGame');
+const victoryReplay = document.getElementById('victoryReplay');
+const victoryShareGame = document.getElementById('victoryShareGame');
 
 // Live Difficulty Display
 const difficultyEmoji = document.getElementById('difficultyEmoji');
@@ -136,6 +138,11 @@ function showVictoryModal() {
         victoryNewGame.innerHTML = '<span>🎲</span> New Scramble';
     }
     
+    // Hide replay button in set seed mode (since reset does the same thing)
+    if (victoryReplay) {
+        victoryReplay.style.display = isSetSeedMode ? 'none' : 'flex';
+    }
+    
     // Show modal
     victoryOverlay.classList.add('active');
     console.log('Victory modal shown'); // Debug
@@ -243,6 +250,54 @@ function initGame() {
         resetMatrix();
     });
     
+    // Replay button - restart same puzzle
+    const victoryReplay = document.getElementById('victoryReplay');
+    if (victoryReplay) {
+        victoryReplay.addEventListener('click', () => {
+            hideVictoryModal();
+            stopSolver();
+            hideGiveUpButton();
+            // Reset with same seed and enter set seed mode
+            if (currentSeed) {
+                const parsed = parseSeedString(currentSeed);
+                if (parsed && parsed.randomSeed) {
+                    // Enter set seed mode
+                    isSetSeedMode = true;
+                    setSeedValue = parsed.randomSeed;
+                    resetMatrix(parsed.randomSeed);
+                    updateDifficultyDisplay();
+                } else {
+                    resetMatrix();
+                }
+            } else {
+                resetMatrix();
+            }
+        });
+    }
+    
+    // Share Game button - copy share text with emoji art
+    const victoryShareGame = document.getElementById('victoryShareGame');
+    if (victoryShareGame) {
+        victoryShareGame.addEventListener('click', () => {
+            const shareText = generateShareText();
+            if (shareText) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    // Visual feedback
+                    const originalHTML = victoryShareGame.innerHTML;
+                    victoryShareGame.innerHTML = '<span>✓</span>';
+                    victoryShareGame.style.backgroundColor = '#3a6c49';
+                    setTimeout(() => {
+                        victoryShareGame.innerHTML = originalHTML;
+                        victoryShareGame.style.backgroundColor = '';
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy to clipboard');
+                });
+            }
+        });
+    }
+    
     // Share Results button for daily puzzle
     const victoryShare = document.getElementById('victoryShare');
     if (victoryShare) {
@@ -294,6 +349,11 @@ function initGame() {
         });
     });
 }
+
+// Prevent context menu on canvas
+canvas.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
 
 // Canvas click handler
 canvas.addEventListener('mousedown', event => {
@@ -447,6 +507,7 @@ const btnGiveUp = document.getElementById('btnGiveUp');
 const btnPuzzle = document.getElementById('btnPuzzle');
 const btnStats = document.getElementById('btnStats');
 const btnSeedAndShare = document.getElementById('btnSeedAndShare');
+const btnLeaveSetSeed = document.getElementById('btnLeaveSetSeed');
 const customizeMenu = document.getElementById('customizeMenu');
 const puzzleMenu = document.getElementById('puzzleMenu');
 const statsMenu = document.getElementById('statsMenu');
@@ -484,6 +545,21 @@ btnAutoClick.addEventListener('click', () => {
 btnSeedAndShare.addEventListener('click', () => {
     puzzleMenu.classList.remove('active');
     showSeedModal();
+});
+
+// Leave Set Seed Mode button
+if (btnLeaveSetSeed) {
+    btnLeaveSetSeed.addEventListener('click', () => {
+        puzzleMenu.classList.remove('active');
+        exitSetSeedMode();
+    });
+}
+
+// Random Puzzle button
+const btnRandomPuzzle = document.getElementById('btnRandomPuzzle');
+btnRandomPuzzle.addEventListener('click', () => {
+    puzzleMenu.classList.remove('active');
+    showRandomPuzzleModal();
 });
 
 // Leaderboard button - show best scores
@@ -1023,31 +1099,65 @@ mobileNewScramble.addEventListener('click', () => {
     btnNewScramble.click();
 });
 
+const mobileRandomPuzzle = document.getElementById('mobileRandomPuzzle');
+if (mobileRandomPuzzle) {
+    mobileRandomPuzzle.addEventListener('click', () => {
+        closeMobileMenu();
+        btnRandomPuzzle.click();
+    });
+}
+
 mobileSeed.addEventListener('click', () => {
     closeMobileMenu();
-    btnSeed.click();
+    btnSeedAndShare.click();
 });
 
-const mobileShare = document.getElementById('mobileShare');
-mobileShare.addEventListener('click', () => {
-    closeMobileMenu();
-    btnShare.click();
-});
+const mobileLeaveSetSeed = document.getElementById('mobileLeaveSetSeed');
+if (mobileLeaveSetSeed) {
+    mobileLeaveSetSeed.addEventListener('click', () => {
+        closeMobileMenu();
+        if (btnLeaveSetSeed) {
+            btnLeaveSetSeed.click();
+        }
+    });
+}
 
 mobileLeaderboard.addEventListener('click', () => {
     closeMobileMenu();
     btnLeaderboard.click();
 });
 
-mobileCustomize.addEventListener('click', () => {
-    closeMobileMenu();
-    // Show customize menu as a modal on mobile instead of dropdown
-    if (window.innerWidth <= 768) {
-        showCustomizeModal();
-    } else {
-        btnCustomize.click();
-    }
-});
+const mobileGridSize = document.getElementById('mobileGridSize');
+if (mobileGridSize) {
+    mobileGridSize.addEventListener('click', () => {
+        closeMobileMenu();
+        btnGridSize.click();
+    });
+}
+
+const mobileColors = document.getElementById('mobileColors');
+if (mobileColors) {
+    mobileColors.addEventListener('click', () => {
+        closeMobileMenu();
+        btnColors.click();
+    });
+}
+
+const mobilePattern = document.getElementById('mobilePattern');
+if (mobilePattern) {
+    mobilePattern.addEventListener('click', () => {
+        closeMobileMenu();
+        btnPattern.click();
+    });
+}
+
+const mobileResetAll = document.getElementById('mobileResetAll');
+if (mobileResetAll) {
+    mobileResetAll.addEventListener('click', () => {
+        closeMobileMenu();
+        btnResetAll.click();
+    });
+}
 
 mobileGiveUp.addEventListener('click', () => {
     closeMobileMenu();
@@ -1077,6 +1187,22 @@ function syncMobileButtonVisibility() {
             mobileAutoClick.classList.add('active');
         } else {
             mobileAutoClick.classList.remove('active');
+        }
+    }
+    // Sync Leave Set Seed Mode button visibility
+    if (mobileLeaveSetSeed) {
+        mobileLeaveSetSeed.style.display = isSetSeedMode ? 'flex' : 'none';
+    }
+    // Update New Scramble button style on mobile
+    if (mobileNewScramble) {
+        if (isSetSeedMode) {
+            mobileNewScramble.innerHTML = '<span>🔄</span> Reset Set Seed';
+            mobileNewScramble.style.background = '#7c4a4a';
+            mobileNewScramble.style.color = '#ffcccc';
+        } else {
+            mobileNewScramble.innerHTML = '<span>🎲</span> New Scramble';
+            mobileNewScramble.style.background = '';
+            mobileNewScramble.style.color = '';
         }
     }
 }
